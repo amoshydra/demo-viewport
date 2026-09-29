@@ -99,11 +99,13 @@ body {
   background: var(--bg);
   color: var(--fg);
   font: 1rem/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  /* Bottom inset only. The left/right insets deliberately live on .top, main and
-     footer instead: .top is a child of body, so putting them here as well would
-     inset the header twice, which only shows up in landscape with a side notch.
-     Each element insets its own content exactly once. */
-  padding: 0 0 calc(30vh + var(--sab));
+  /* Bottom inset only, so the last row clears a home indicator or gesture bar.
+     No extra scroll padding: fabricating 30vh of dead space would make the
+     scroll y / max and page height readouts below unrepresentative of a real app.
+     The left/right insets deliberately live on .top, main and footer instead:
+     .top is a child of body, so putting them here as well would inset the header
+     twice, which only shows up in landscape with a side notch. */
+  padding: 0 0 var(--sab);
   /* No text-size-adjust here on purpose: the initial value is auto, and a
      declaration on body would beat the inline override set on <html>. */
 }

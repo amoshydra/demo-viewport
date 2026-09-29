@@ -45,7 +45,7 @@ app instead of hiding its header under the status bar:
 ```css
 :root { --sat: env(safe-area-inset-top, 0px); /* …sar, --sab, --sal */ }
 
-body   { padding: 0 0 calc(30vh + var(--sab)); }
+body   { padding: 0 0 var(--sab); }
 .top   { padding: calc(.5rem + var(--sat)) calc(.75rem + var(--sar)) .5rem calc(.75rem + var(--sal)); }
 main   { padding: .75rem calc(.75rem + var(--sar)) .75rem calc(.75rem + var(--sal)); }
 footer { padding: 0 calc(.75rem + var(--sar)) 1.5rem calc(.75rem + var(--sal)); }
@@ -57,6 +57,11 @@ its own content, and **`body` deliberately carries no left/right inset**: `.top`
 child of `body`, so insetting both would inset the header twice. That is invisible in
 portrait, where the insets are `0px`, and wrong in landscape with a side notch. The
 overlays and the probe elements are `position: fixed` and stay full-bleed regardless.
+
+`body` also has no extra bottom padding beyond the inset. Padding it out to force a
+scroll range would make the `scroll y / max` and `page height` readouts report a
+layout no real app has, which is the opposite of what this page is for. The trailing
+24px comes from the footer, and the page still scrolls on its own.
 
 Two things to know:
 
