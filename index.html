@@ -1132,7 +1132,10 @@ toggleDefs.forEach(([key, label]) => {
     OV[key] = i.checked;
     l.classList.toggle("on", i.checked);
     syncOverlays();
-    if (key === "kb") log("sim-keyboard", i.checked ? "on (" + kbSize.value + "px)" : "off");
+    if (key === "kb") {
+      syncKb();
+      log("sim-keyboard", i.checked ? "on (" + kbSize.value + "px)" : "off");
+    }
   });
   l.append(i, document.createTextNode(label));
   $("#ov-toggles").appendChild(l);
