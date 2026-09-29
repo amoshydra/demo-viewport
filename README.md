@@ -161,5 +161,6 @@ Two things that bite people here:
 
 - Files whose name starts with `_` are dropped by Jekyll, which is what branch deploy
   uses. Neither file in this repo does.
-- Nothing is cached, so a reload always shows the current build. That matters for a
-  tool you are debugging a WebView with.
+- GitHub Pages caches HTML for about ten minutes, so a freshly pushed change may not
+  show up immediately. Append a cache-buster, which the page ignores and preserves
+  when you change the viewport meta: `index.html?fit=cover&v=2`.
