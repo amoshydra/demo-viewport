@@ -142,6 +142,38 @@ Switching any of these reloads the page, so the settings are just query params:
 index.html?fit=cover&iw=resizes-content
 ```
 
+### How the viewport meta is applied
+
+The tag is static in the markup and the head script rewrites *that one tag* rather
+than appending a new one:
+
+```html
+<meta name="viewport" id="viewport-meta" data-wvdbg content="width=device-width, initial-scale=1">
+```
+
+Two reasons, both of which matter more here than on a normal page:
+
+- **No `width=980` window.** A JS-created meta does work — that is how the
+  enable-pinch-zoom trick works in production — but the default viewport applies
+  until the tag exists. A static tag removes the question of whether the script
+  runs before first layout.
+- **A WebView host can inject its own viewport meta.** With two tags, which one wins
+  is implementation-defined, and the native side may also set `useWideViewPort` or
+  `loadWithOverviewMode` behind your back. The script therefore adopts the first
+  `meta[name=viewport]` it finds, tags it `id="viewport-meta"`, and rewrites it, so
+  there is only ever one.
+
+The page then reports what it found, which is the part worth knowing on a device:
+
+- `own` — the static tag was there, normal case.
+- `adopted` — a host had already injected one before the script ran. The host's
+  values were replaced, which may not be what the host intended.
+- `created` — no tag existed, so one was made.
+
+If a host injects *after* load the tag count rises, and the line under the hero
+readout says so: `2 viewport metas exist now, so a host is overriding one after
+load`. That is usually the real cause of a viewport that will not behave.
+
 ## Getting data out
 
 `copy` in the header writes a flattened text dump of every collected value plus the

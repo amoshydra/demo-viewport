@@ -2,6 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" id="viewport-meta" data-wvdbg content="width=device-width, initial-scale=1">
 <title>WebView Debug</title>
 <meta name="description" content="Read-only diagnostics for a WebView: viewport, safe-area insets, dvh/svh/lvh, pixel ratio, keyboard behaviour, pointer and hover.">
 <meta name="color-scheme" content="light dark">
@@ -10,21 +11,38 @@
 <!-- Inline so there is no extra request and no favicon 404 in the console. -->
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0b0d'/%3E%3Crect x='6' y='5' width='20' height='22' rx='2' fill='none' stroke='%237aa2f7' stroke-width='2'/%3E%3Crect x='6' y='9' width='20' height='2' fill='%237aa2f7' opacity='.55'/%3E%3Crect x='6' y='21' width='20' height='2' fill='%237aa2f7' opacity='.55'/%3E%3C/svg%3E">
 <script>
-/* Before first paint: set the theme and the viewport meta from the query string. */
+/* Before first paint: set the theme and adjust the viewport meta. */
 (function () {
   try { var t = localStorage.getItem("wvdbg.theme") || "auto"; } catch (e) { t = "auto"; }
   var dark = t === "dark" || (t === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
   document.documentElement.dataset.theme = dark ? "dark" : "light";
-  var p = new URLSearchParams(location.search);
-  var parts = ["width=device-width", "initial-scale=" + (p.get("scale") || "1")];
-  if (p.get("fit") === "cover") parts.push("viewport-fit=cover");
-  if (p.get("zoom") === "no") parts.push("user-scalable=no", "maximum-scale=1");
-  if (p.get("iw")) parts.push("interactive-widget=" + p.get("iw"));
-  var m = document.createElement("meta");
-  m.name = "viewport";
+
+  /* A static meta is already in the markup, so there is never a window where the
+     engine falls back to width=980. Rewriting one tag in place is also better than
+     appending a second: a WebView host may inject its own viewport meta, and with
+     two tags which one wins is implementation-defined. Adopt whatever exists so
+     there is only ever one, and record that we did. */
+  var metas = document.querySelectorAll("meta[name=viewport]");
+  var source = metas.length === 0 ? "created" : (metas[0].hasAttribute("data-wvdbg") ? "own" : "adopted");
+  var m = metas[0];
+  if (!m) {
+    m = document.createElement("meta");
+    m.name = "viewport";
+    m.setAttribute("data-wvdbg", "");
+    document.head.appendChild(m);
+  }
   m.id = "viewport-meta";
+  document.documentElement.dataset.metaSource = source;
+
+  var parts = ["width=device-width", "initial-scale=1"];
+  try {
+    var p = new URLSearchParams(location.search);
+    if (p.get("scale")) parts[1] = "initial-scale=" + p.get("scale");
+    if (p.get("fit") === "cover") parts.push("viewport-fit=cover");
+    if (p.get("zoom") === "no") parts.push("user-scalable=no", "maximum-scale=1");
+    if (p.get("iw")) parts.push("interactive-widget=" + p.get("iw"));
+  } catch (e) { /* keep the defaults */ }
   m.content = parts.join(", ");
-  document.head.appendChild(m);
 })();
 </script>
 <style>
@@ -712,6 +730,8 @@ function collect() {
       historyLength: history.length, title: document.title,
       viewportMeta: metaContent, viewportFit: fit ? fit[1] : null,
       interactiveWidget: iw ? iw[1] : null,
+      viewportMetaCount: document.querySelectorAll("meta[name=viewport]").length,
+      viewportMetaSource: document.documentElement.dataset.metaSource || null,
       isSecureContext: window.isSecureContext, crossOriginIsolated: !!window.crossOriginIsolated
     },
     display: {
@@ -1194,8 +1214,11 @@ function refresh() {
   $("#hero-gap").textContent = px(D.units.deltas["vh - dvh"]);
   $("#hero-scroll").textContent = D.scroll.y + " / " + D.scroll.maxScroll.y;
   $("#hdr-sub").textContent = D.viewport.innerWidth + "×" + D.viewport.innerHeight;
-  $("#hero-meta").textContent = D.page.viewportMeta;
-  $("#meta-out").textContent = D.page.viewportMeta;
+  const metaWarn = [];
+  if (D.page.viewportMetaSource === "adopted") metaWarn.push("the host injected a viewport meta before this script ran; the page adopted and replaced it");
+  if (D.page.viewportMetaCount > 1) metaWarn.push(D.page.viewportMetaCount + " viewport metas exist now, so a host is overriding one after load");
+  $("#hero-meta").textContent = D.page.viewportMeta + (metaWarn.length ? "  ·  " + metaWarn.join(" · ") : "");
+  $("#meta-out").textContent = D.page.viewportMeta + (metaWarn.length ? "  ·  " + metaWarn.join(" · ") : "");
   $("#kb-h").textContent = kbSize.value + "px of " + n(innerHeight) + "px";
 
   const vals = {
