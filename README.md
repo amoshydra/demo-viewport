@@ -43,13 +43,20 @@ The page applies the safe-area insets to its own chrome, so it behaves like a re
 app instead of hiding its header under the status bar:
 
 ```css
-:root  { --sat: env(safe-area-inset-top, 0px); /* …sar, --sab, --sal */ }
-body   { padding: 0 var(--sar) calc(30vh + var(--sab)) var(--sal); }
-.top   { padding: calc(8px + var(--sat)) calc(12px + var(--sar)) 8px calc(12px + var(--sal)); }
+:root { --sat: env(safe-area-inset-top, 0px); /* …sar, --sab, --sal */ }
+
+body   { padding: 0 0 calc(30vh + var(--sab)); }
+.top   { padding: calc(.5rem + var(--sat)) calc(.75rem + var(--sar)) .5rem calc(.75rem + var(--sal)); }
+main   { padding: .75rem calc(.75rem + var(--sar)) .75rem calc(.75rem + var(--sal)); }
+footer { padding: 0 calc(.75rem + var(--sar)) 1.5rem calc(.75rem + var(--sal)); }
 ```
 
 The top inset is padding *inside* the sticky header, so the header's background also
-covers the status-bar strip instead of leaving a gap above it.
+covers the status-bar strip instead of leaving a gap above it. Each element insets
+its own content, and **`body` deliberately carries no left/right inset**: `.top` is a
+child of `body`, so insetting both would inset the header twice. That is invisible in
+portrait, where the insets are `0px`, and wrong in landscape with a side notch. The
+overlays and the probe elements are `position: fixed` and stay full-bleed regardless.
 
 Two things to know:
 
