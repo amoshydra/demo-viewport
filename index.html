@@ -17,6 +17,16 @@
   var dark = t === "dark" || (t === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
   document.documentElement.dataset.theme = dark ? "dark" : "light";
 
+  /* text-size-adjust: "auto" is the initial value and is what lets iOS apply the
+     user's Larger Text setting. 100% pins the text to the CSS size instead, which
+     is predictable but ignores the preference. Toggleable, applied before paint. */
+  var tsa = "auto";
+  try { tsa = localStorage.getItem("wvdbg.tsa") || "auto"; } catch (e) {}
+  if (tsa !== "auto") {
+    document.documentElement.style.webkitTextSizeAdjust = tsa;
+    document.documentElement.style.textSizeAdjust = tsa;
+  }
+
   /* A static meta is already in the markup, so there is never a window where the
      engine falls back to width=980. Rewriting one tag in place is also better than
      appending a second: a WebView host may inject its own viewport meta, and with
@@ -78,16 +88,20 @@ html[data-theme="dark"] {
   --bad: #fb7185;
 }
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
 html, body { margin: 0; padding: 0; }
 /* No height/overflow tricks here: the page has to scroll like a real app shell or
-   the scroll and viewport numbers below would be lying. */
+   the scroll and viewport numbers below would be lying.
+
+   Type, spacing and control sizes are in rem so they follow the browser's font
+   size preference. Sizes that represent a device measurement stay in px - see
+   the grid overlays, the safe-area bands and everything the script prints. */
 body {
   background: var(--bg);
   color: var(--fg);
-  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font: 1rem/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   padding: 0 var(--sar) calc(30vh + var(--sab)) var(--sal);
-  -webkit-text-size-adjust: 100%;
+  /* No text-size-adjust here on purpose: the initial value is auto, and a
+     declaration on body would beat the inline override set on <html>. */
 }
 
 /* ---------------------------------------------------------------- header */
@@ -102,6 +116,7 @@ body {
 }
 .top .brand { font-weight: 600; font-size: 14px; letter-spacing: .01em; }
 .top .brand span { color: var(--muted); font-weight: 400; }
+.top .hdr-label { color: var(--muted); font-size: 12px; }
 .top .sp { flex: 1 1 auto; }
 button, select, input[type="text"], textarea {
   font: inherit; color: var(--fg); background: var(--surface-2);
@@ -316,6 +331,11 @@ footer { max-width: 900px; margin: 0 auto; padding: 0 12px 24px; color: var(--mu
   <div class="brand">webview debug <span id="hdr-sub"></span></div>
   <span class="sp"></span>
   <button id="btn-top-bar" type="button">top</button>
+  <span class="hdr-label">text</span>
+  <select id="tsa" aria-label="text size adjust">
+    <option value="auto">auto</option>
+    <option value="100%">fixed</option>
+  </select>
   <select id="theme" aria-label="theme">
     <option value="auto">auto</option>
     <option value="dark">dark</option>
@@ -569,6 +589,18 @@ function applyTheme() {
 themeSel.addEventListener("change", () => { store.set("wvdbg.theme", themeSel.value); applyTheme(); });
 darkMQ.addEventListener("change", applyTheme);
 applyTheme();
+
+/* ------------------------------------------------------------ text scaling */
+const tsaSel = $("#tsa");
+function applyTsa() {
+  const v = store.get("wvdbg.tsa", "auto");
+  tsaSel.value = v;
+  const s = document.documentElement.style;
+  if (v === "auto") { s.webkitTextSizeAdjust = ""; s.textSizeAdjust = ""; }
+  else { s.webkitTextSizeAdjust = v; s.textSizeAdjust = v; }
+}
+tsaSel.addEventListener("change", () => { store.set("wvdbg.tsa", tsaSel.value); applyTsa(); schedule(); });
+applyTsa();
 
 /* ----------------------------------------------------------------- probes */
 const H_UNITS = ["vh", "dvh", "svh", "lvh"];
@@ -920,6 +952,7 @@ up.media = table($("#kv-media"), [
   ["dynamic range", D => D.media.dynamicRange || "—"],
   ["monochrome", D => bool(D.media.monochrome)],
   ["window controls overlay", D => bool("windowControlsOverlay" in navigator)],
+  ["text size adjust", D => textSizeAdjust(), { cls: D => (textSizeAdjust() === "auto" ? "ok" : "warn") }],
   ["theme follows OS", D => document.documentElement.dataset.theme === (darkMQ.matches ? "dark" : "light") ? "yes" : "overridden", { cls: D => (document.documentElement.dataset.theme !== (darkMQ.matches ? "dark" : "light") ? "warn" : "") }]
 ]);
 
