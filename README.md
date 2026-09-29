@@ -17,26 +17,25 @@ Jekyll, which silently drops any file whose name begins with an underscore.
 
 ## What it reports
 
-| Card | What you get |
+| Section | What you get |
 | --- | --- |
-| Overlays & tools | Toggles for every highlight, viewport-meta switches, simulated keyboard, orientation/fullscreen/file-picker/vibration buttons |
-| Display | `devicePixelRatio`, screen vs viewport in CSS and device pixels, screen orientation, a 1 CSS px / 1 device px ruler, fractional-scaling check |
-| Viewport | `innerWidth/Height`, `html`/`body` client sizes, `100%` behaviour inside a default-height body, scrollbar width, visual viewport (`scale`, offsets, shrink amount) |
-| Viewport units | `vh` `dvh` `svh` `lvh` and `vw` `dvw` `svw` `lvw` measured from real elements, plus the deltas between them and a bar chart per axis |
-| Safe area insets | The four `env(safe-area-inset-*)` values, `env(max(...))`, whether `env()`/`constant()` parse, and the active `viewport-fit` |
-| Keyboard | Live `innerHeight` vs `visualViewport.height`, largest shrink seen, and whether a software keyboard is detected |
-| Pointer, hover & taps | Live pointer type, contact geometry, pressure, tilt and twist, plus `(hover: hover)`, `(pointer: coarse/fine/none)` and the `any-` variants, a hover target that detects a stuck `:hover` after a tap, tap latency, long-press timing and double-tap detection |
-| Page & scroll | Scroll offset, document and body scroll sizes, max scroll, `overscroll-behavior` and `touch-action` |
-| Environment | User agent, UA client hints (including high-entropy values), platform, languages, timezone, cores, memory, touch points, `isSecureContext`, `crossOriginIsolated`, location and referrer |
-| Media & display mode | Colour scheme, reduced motion/contrast, forced colours, hover/pointer, `display-mode`, colour gamut, plus a live grid of 42 media queries that updates on every change |
-| Storage & privacy | `localStorage`, `sessionStorage`, cookies, IndexedDB, CacheStorage, quota, a real third-party cookie test |
-| Timing & performance | Navigation timing, transfer sizes, protocol, `navigator.connection`, FPS, long tasks, JS heap |
-| Input | Pointer type/pressure/touch count, focus, tap-highlight colour, `-webkit-text-size-adjust` |
-| Feature support | ~60 CSS, DOM, platform and storage capability probes |
-| Event log | Timestamped `resize`, `visualViewport`, orientation, focus, pointer, key, clipboard, and lifecycle events |
+| *always visible* | Viewport size, `devicePixelRatio`, the four safe-area insets, `100dvh`, the `vh − dvh` gap, scroll position, and the active viewport meta |
+| *always visible* | Toggles for each highlight, the unit test box picker, simulated keyboard height, and rotate / fullscreen / vibrate / file-picker buttons |
+| viewport & units | `innerWidth/Height`, visual viewport, screen size, physical pixel size, `html` client size, `100%` behaviour inside a default-height body, scrollbar width, scroll position, and all eight units measured from real probe elements with a bar chart per axis |
+| safe area | The four `env(safe-area-inset-*)` values, `env(max(...))`, whether `env()`/`constant()` parse, the active `viewport-fit`, the manual force override, and an inset simulator |
+| keyboard | Live `innerHeight` vs `visualViewport.height`, largest shrink seen, `interactive-widget`, and an input to raise the real keyboard |
+| pointer & hover | Pointer type, contact geometry, pressure, tilt and twist, `(hover: hover)`, `(pointer: coarse/fine/none)` and the `any-` variants, `maxTouchPoints`, tap latency, long-press timing, double taps, and a hover target that detects a stuck `:hover` |
+| media queries | Colour scheme, `display-mode`, reduced motion, forced colours, gamut, plus a live grid of 36 queries that updates and logs every change |
+| environment | User agent, UA client hints including high-entropy values, platform, languages, timezone, cores, memory, touch points, `isSecureContext`, `crossOriginIsolated`, referrer |
+| storage & network | `localStorage`, `sessionStorage`, cookies, IndexedDB, CacheStorage, quota, a real third-party cookie test, `navigator.connection` |
+| performance | FPS, long tasks, JS heap, navigation timing, transfer sizes, protocol |
+| feature support | 55 CSS, DOM, platform and storage capability probes |
+| event log | Timestamped viewport, visual viewport, media query, focus, pointer, key, clipboard and lifecycle events |
+| viewport meta | `viewport-fit`, `interactive-widget` and `user-scalable` switches; each one reloads the page |
 
-Readouts update live while the page scrolls, so you can watch the numbers change
-when the keyboard opens or a system bar animates.
+Everything below the first two blocks is collapsed by default, so the page opens
+as a single screenful. Readouts update live while the page scrolls, so you can watch
+the numbers change when the keyboard opens or a system bar animates.
 
 ## Safe area
 
@@ -84,20 +83,27 @@ Two things to know:
 
 The page is built for being read on the device it is debugging:
 
-- Below 460px the key/value rows stack, label above value. A two-column table squeezes
-  labels to one word per line at phone widths, which makes the numbers unreadable.
-- `minmax(min(330px, 100%), 1fr)` for the card grid, so there is no horizontal overflow
-  at 320px.
-- Both grid tracks in a key/value row are flexible. A `max-content` value track starves
-  long values, which wrapped the user agent one character per line.
+- A key/value row is a flex row with the label on the left and the value on the
+  right. The value is `white-space: nowrap`, so it never breaks mid-number; only a
+  long *label* can wrap. Values that genuinely cannot fit on one line — the user
+  agent, paths, high-entropy hints — opt in to a stacked full-width row instead of
+  being truncated.
+- Both grid tracks used to be content-sized, which starved the value column and
+  wrapped the user agent one character per line. Anything numeric is now
+  `font-variant-numeric: tabular-nums` so digits line up between rows.
+- `minmax(min(330px, 100%), 1fr)` for the card grid, so there is no horizontal
+  overflow at 320px.
 - On `(pointer: coarse)` controls grow to 40px and inputs go to 16px, so iOS does not
   zoom the page when you focus the keyboard test input.
 - `-webkit-text-size-adjust: 100%` stops the system from inflating the readouts.
+- Verified with no horizontal overflow and no wrapped values at 320, 375, 412, 768
+  and 1280px wide, with every section both open and closed.
 
 ## Pointer, hover and tap behaviour
 
-`Media & display mode` answers what the media queries claim; the pointer card tells you
-what actually happened. That difference is the point, and it is where most mobile bugs live:
+The media query section answers what the media queries claim; the pointer section
+tells you what actually happened. That difference is the point, and it is where most
+mobile bugs live:
 
 - **Hover test box** — move the pointer over it. If it reports hovered while your last
   pointer was a touch, `:hover` is stuck after a tap, which is why a dropdown stays open
@@ -116,7 +122,7 @@ what actually happened. That difference is the point, and it is where most mobil
   is swallowing the gesture.
 - **Double taps** — counted, with the resulting `visualViewport.scale` logged, so
   double-tap zoom is visible even when the page is not zoomed.
-- **Live media query grid** — 42 queries including every `(hover:)`, `(pointer:)` and
+- **Live media query grid** — 36 queries including every `(hover:)`, `(pointer:)` and
   `(any-*)` variant, colour scheme, reduced motion/transparency/contrast, forced colours,
   `display-mode`, gamut, resolution and orientation. Every change is logged with a
   timestamp, so rotating the device or switching theme leaves a trace.
@@ -138,7 +144,22 @@ index.html?fit=cover&iw=resizes-content
 
 ## Getting data out
 
-`copy report` writes a flattened text dump of every value plus the event log to the
-clipboard. If the Clipboard API is unavailable (any non-secure origin) a selectable
-textbox appears at the bottom of the page instead. `download json` exports the same
-data plus the log as JSON, which only works if the WebView allows downloads.
+`copy` in the header writes a flattened text dump of every collected value plus the
+event log to the clipboard. If the Clipboard API is unavailable (any non-secure
+origin) a selectable textbox appears at the bottom of the page instead. The same
+`collect()` object backs `download json` in the event log section, so the export
+carries the full data set even though the page only displays a readable subset of it.
+`download json` needs the WebView to allow downloads.
+
+## Deploying
+
+`Settings → Pages → Deploy from a branch`, branch `main`, folder `/ (root)`. No
+build step and no workflow file. The site lands on
+`https://amoshydra.github.io/demo-viewport/`.
+
+Two things that bite people here:
+
+- Files whose name starts with `_` are dropped by Jekyll, which is what branch deploy
+  uses. Neither file in this repo does.
+- Nothing is cached, so a reload always shows the current build. That matters for a
+  tool you are debugging a WebView with.
