@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>3rd-party cookie test target</title>
+</head>
+<body>
+<script>
+/* Passive cross-site beacon for the test in index.html. index.html performs the
+   cookie write itself; this page only proves that a (cross-site) frame loads at all,
+   which is the thing that usually breaks first: mixed content, CSP frame-ancestors,
+   offline, or a webview that blocks third-party frames entirely. */
+try {
+  document.cookie = "__wv3p=1; path=/; SameSite=None; Secure";
+  document.title = "loaded";
+  document.body.textContent = "frame loaded from " + location.origin
+    + " - document.cookie is " + (document.cookie ? "readable (" + document.cookie.length + " chars)" : "empty");
+} catch (e) {
+  document.body.textContent = "cookie access threw " + e.name;
+}
+</script>
+</body>
+</html>
