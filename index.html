@@ -70,10 +70,10 @@
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   /* The page's own chrome respects the safe area, so nothing hides under the
      status bar or a notch. Overridden inline by the manual override inputs. */
-  --sat: env(safe-area-inset-top, 0px);
-  --sar: env(safe-area-inset-right, 0px);
-  --sab: env(safe-area-inset-bottom, 0px);
-  --sal: env(safe-area-inset-left, 0px);
+  --sat: env(safe-area-inset-top, 0);
+  --sar: env(safe-area-inset-right, 0);
+  --sab: env(safe-area-inset-bottom, 0);
+  --sal: env(safe-area-inset-left, 0);
 }
 html[data-theme="dark"] {
   --bg: #0b0b0d;
@@ -107,91 +107,95 @@ body {
 /* ---------------------------------------------------------------- header */
 .top {
   position: sticky; top: 0; z-index: 20;
-  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem;
   /* The inset padding is inside the header, so its background also covers the
      status bar strip instead of leaving a gap. */
-  padding: calc(8px + var(--sat)) calc(12px + var(--sar)) 8px calc(12px + var(--sal));
+  padding: calc(0.5rem + var(--sat)) calc(0.75rem + var(--sar)) 0.5rem calc(0.75rem + var(--sal));
   background: var(--surface);
   border-bottom: 1px solid var(--line);
 }
-.top .brand { font-weight: 600; font-size: 14px; letter-spacing: .01em; }
+.top .brand { font-weight: 600; font-size: 0.875rem; letter-spacing: .01em; }
 .top .brand span { color: var(--muted); font-weight: 400; }
-.top .hdr-label { color: var(--muted); font-size: 12px; }
+.top .hdr-label { color: var(--muted); font-size: 0.75rem; }
 .top .sp { flex: 1 1 auto; }
 button, select, input[type="text"], textarea {
   font: inherit; color: var(--fg); background: var(--surface-2);
-  border: 1px solid var(--line); border-radius: 8px; padding: 5px 8px;
+  border: 1px solid var(--line); border-radius: 0.5rem; padding: 0.3125rem 0.5rem;
 }
 button { cursor: pointer; }
 button:hover, select:hover { border-color: var(--accent); }
-button:active { transform: translateY(1px); }
-.top button, .top select { font-size: 13px; padding: 4px 8px; }
+button:active { transform: translateY(0.0625rem); }
+.top button, .top select { font-size: 0.8125rem; padding: 0.25rem 0.5rem; }
 
 /* ---------------------------------------------------------------- layout */
-main { padding: 12px; display: grid; gap: 10px; max-width: 900px; margin: 0 auto; }
+main { padding: 0.75rem; display: grid; gap: 0.625rem; max-width: 56.25rem; margin: 0 auto; }
 .card {
   background: var(--surface); border: 1px solid var(--line);
-  border-radius: 12px; overflow: hidden;
+  border-radius: 0.75rem; overflow: hidden;
 }
-.card > .body { padding: 4px 14px 14px; }
+.card > .body { padding: 0.25rem 0.875rem 0.875rem; }
 
 /* hero: the one thing you actually look at */
-.hero { padding: 16px 16px 14px; }
-.hero-num { font: 600 38px/1 var(--mono); letter-spacing: -.02em; }
-.hero-sub { margin-top: 6px; color: var(--muted); font: 12px/1.5 var(--mono); }
-.hero-stats { display: flex; gap: 20px; margin-top: 14px; flex-wrap: wrap; }
+.hero { padding: 1rem 1rem 0.875rem; }
+.hero-num { font: 600 2.375rem/1 var(--mono); letter-spacing: -.02em; }
+.hero-sub { margin-top: 0.375rem; color: var(--muted); font: 0.75rem/1.5 var(--mono); }
+.hero-stats { display: flex; gap: 1.25rem; margin-top: 0.875rem; flex-wrap: wrap; }
 .hero-stats div { min-width: 0; }
-.hero-k { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); }
-.hero-v { display: block; margin-top: 3px; font: 15px/1.2 var(--mono); }
+.hero-k { display: block; font-size: 0.625rem; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); }
+.hero-v { display: block; margin-top: 0.1875rem; font: 0.9375rem/1.2 var(--mono); }
 .hero-meta {
-  margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--line);
-  color: var(--muted); font: 11.5px/1.5 var(--mono); overflow-wrap: anywhere;
+  margin-top: 0.875rem; padding-top: 0.625rem; border-top: 1px solid var(--line);
+  color: var(--muted); font: 0.71875rem/1.5 var(--mono); overflow-wrap: anywhere;
 }
 
 /* collapsible sections */
 details.card > summary {
-  display: flex; align-items: center; gap: 8px;
-  padding: 12px 14px; cursor: pointer; list-style: none;
-  font-size: 14px; font-weight: 500; user-select: none;
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.75rem 0.875rem; cursor: pointer; list-style: none;
+  font-size: 0.875rem; font-weight: 500; user-select: none;
 }
 details.card > summary::-webkit-details-marker { display: none; }
 details.card > summary::before {
-  content: ""; width: 6px; height: 6px; flex: 0 0 auto;
+  content: ""; width: 0.375rem; height: 0.375rem; flex: 0 0 auto;
   border-right: 1.5px solid var(--muted); border-bottom: 1.5px solid var(--muted);
   transform: rotate(-45deg); transition: transform .12s ease;
 }
 details.card[open] > summary::before { transform: rotate(45deg); }
-details.card[open] > summary { border-bottom: 1px solid var(--line); padding-bottom: 11px; }
-details.card > summary .note { margin: 0; font-size: 11px; font-weight: 400; }
-details.card > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+details.card[open] > summary { border-bottom: 1px solid var(--line); padding-bottom: 0.6875rem; }
+details.card > summary .note { margin: 0; font-size: 0.6875rem; font-weight: 400; }
+details.card > summary:focus-visible { outline: 0.125rem solid var(--accent); outline-offset: -0.125rem; }
 
 /* key/value rows: the value never wraps, so only a long label would */
 .kv { display: flex; flex-direction: column; }
-.kv-row { display: flex; align-items: baseline; gap: 14px; padding: 5px 0; border-bottom: 1px solid var(--line); }
+.kv-row { display: flex; align-items: baseline; gap: 0.875rem; padding: 0.3125rem 0; border-bottom: 1px solid var(--line); }
 .kv-row:last-child { border-bottom: 0; }
-.kv-row .k { color: var(--muted); font-size: 12.5px; min-width: 0; }
-.kv-row .v { margin-left: auto; font: 13.5px/1.4 var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+.kv-row .k { color: var(--muted); font-size: 0.78125rem; min-width: 0; }
+/* The value keeps its natural width at 1x (verified: no wrapping at the default
+   root size). min-width:0 lets it shrink and wrap at word boundaries when a large
+   user font size leaves no room, instead of overflowing the card, which has
+   overflow:hidden. break-word is the last resort for a single unbroken token. */
+.kv-row .v { margin-left: auto; min-width: 0; font: 0.84375rem/1.4 var(--mono); font-variant-numeric: tabular-nums; overflow-wrap: break-word; text-align: right; }
 .kv-row .v.ok { color: var(--good); }
 .kv-row .v.bad { color: var(--bad); }
 .kv-row .v.warn { color: var(--warn); }
 /* long values (user agent, paths) get their own full-width lines */
-.kv-row.wrap { flex-direction: column; align-items: stretch; gap: 3px; }
+.kv-row.wrap { flex-direction: column; align-items: stretch; gap: 0.1875rem; }
 .kv-row.wrap .v { margin-left: 0; white-space: normal; text-align: left; overflow-wrap: anywhere; }
-.kv-row.wrap .k { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; }
+.kv-row.wrap .k { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: .07em; }
 
-.note { color: var(--muted); font-size: 12px; margin: 10px 0 0; }
-.note code { font-family: var(--mono); font-size: 11.5px; }
-.hr { height: 1px; background: var(--line); margin: 12px 0 4px; }
-.sub { color: var(--muted); font-size: 10.5px; text-transform: uppercase; letter-spacing: .09em; margin: 14px 0 2px; }
+.note { color: var(--muted); font-size: 0.75rem; margin: 0.625rem 0 0; }
+.note code { font-family: var(--mono); font-size: 0.71875rem; }
+.hr { height: 0.0625rem; background: var(--line); margin: 0.75rem 0 0.25rem; }
+.sub { color: var(--muted); font-size: 0.65625rem; text-transform: uppercase; letter-spacing: .09em; margin: 0.875rem 0 0.125rem; }
 
 /* chips: toggles and yes/no probes, all one style */
-.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 0.375rem; }
 .chip {
-  display: inline-flex; align-items: center; gap: 6px;
-  font: 12px/1 var(--mono); border: 1px solid var(--line);
-  background: var(--surface-2); border-radius: 999px; padding: 6px 10px;
+  display: inline-flex; align-items: center; gap: 0.375rem; max-width: 100%;
+  font: 0.75rem/1 var(--mono); border: 1px solid var(--line);
+  background: var(--surface-2); border-radius: 62.4375rem; padding: 0.375rem 0.625rem;
 }
-.chip b { font-weight: 500; }
+.chip b { font-weight: 500; overflow-wrap: anywhere; }
 .chip i { font-style: normal; color: var(--muted); }
 .chip.on { border-color: var(--accent); color: var(--accent); }
 .chip.on i { color: var(--accent); }
@@ -199,52 +203,55 @@ details.card > summary:focus-visible { outline: 2px solid var(--accent); outline
 .chip[data-state="no"] i { color: var(--muted); }
 .chip.err i { color: var(--bad); }
 label.chip { cursor: pointer; }
-label.chip input { margin: 0; accent-color: var(--accent); width: 15px; height: 15px; }
+label.chip input { margin: 0; accent-color: var(--accent); width: 0.9375rem; height: 0.9375rem; }
 
-.row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.row + .row { margin-top: 8px; }
-.inline { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12.5px; }
-select, input[type="text"] { font: 13px var(--mono); }
-input[type="range"] { accent-color: var(--accent); }
+.row { display: flex; flex-wrap: wrap; gap: 0.375rem; align-items: center; }
+.row + .row { margin-top: 0.5rem; }
+/* min-width:0 and wrap keep the label/control pair inside the row when the user
+   scales their font size up: without them the pair overflows and the card's
+   overflow:hidden clips it. */
+.inline { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.375rem; color: var(--muted); font-size: 0.78125rem; min-width: 0; }
+select, input[type="text"] { font: 0.8125rem var(--mono); max-width: 100%; min-width: 0; }
+input[type="range"] { accent-color: var(--accent); max-width: 100%; min-width: 0; }
 
 /* unit bars */
 /* The fill lives in its own fixed-height track, so the label and value can never
    be clipped. A bare height here plus overflow-x:auto clipped the top label,
    because overflow-x forces overflow-y to clip too. */
-.bars { --fill: 78px; display: flex; gap: 6px; align-items: flex-end; overflow-x: auto; overflow-y: hidden; }
-.bars .bar { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 0 0 42px; }
+.bars { --fill: 4.875rem; display: flex; gap: 0.375rem; align-items: flex-end; overflow-x: auto; overflow-y: hidden; }
+.bars .bar { display: flex; flex-direction: column; align-items: center; gap: 0.1875rem; flex: 0 0 2.625rem; }
 .bars .bar .track { height: var(--fill); display: flex; align-items: flex-end; }
-.bars .bar i { display: block; width: 26px; min-height: 2px; background: var(--accent); border-radius: 2px 2px 0 0; }
+.bars .bar i { display: block; width: 1.625rem; min-height: 0.125rem; background: var(--accent); border-radius: 0.125rem 0.125rem 0 0; }
 .bars .bar.alt i { background: var(--muted); }
-.bars .bar b { font: 500 10px/1 var(--mono); color: var(--muted); }
-.bars .bar u { font: 10px/1 var(--mono); text-decoration: none; }
+.bars .bar b { font: 500 0.625rem/1 var(--mono); color: var(--muted); }
+.bars .bar u { font: 0.625rem/1 var(--mono); text-decoration: none; }
 
 /* hover target */
 .hovertest {
-  display: grid; place-items: center; min-height: 64px; padding: 8px;
-  border: 1px dashed var(--line); border-radius: 10px; background: var(--surface-2);
-  color: var(--muted); font: 12px/1.4 var(--mono); text-align: center;
+  display: grid; place-items: center; min-height: 4rem; padding: 0.5rem;
+  border: 1px dashed var(--line); border-radius: 0.625rem; background: var(--surface-2);
+  color: var(--muted); font: 0.75rem/1.4 var(--mono); text-align: center;
 }
 .hovertest:hover { border-color: var(--accent); border-style: solid; color: var(--fg); }
 .hovertest[data-stuck="1"] { border-color: var(--warn); border-style: solid; color: var(--warn); }
 
 /* inset simulator */
-.simbox { display: grid; place-items: center; min-height: 80px; background: var(--surface-2); border-radius: 10px; color: var(--muted); font: 11px var(--mono); }
-.simctl { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
-.simctl label { display: grid; gap: 3px; font: 10.5px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+.simbox { display: grid; place-items: center; min-height: 5rem; background: var(--surface-2); border-radius: 0.625rem; color: var(--muted); font: 0.6875rem var(--mono); }
+.simctl { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.375rem; margin-top: 0.5rem; }
+.simctl label { display: grid; gap: 0.1875rem; font: 0.65625rem var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
 .simctl input { width: 100%; }
 
 /* event log */
-#log { list-style: none; margin: 0; padding: 0; max-height: 260px; overflow: auto; font: 11.5px/1.5 var(--mono); }
-#log li { display: grid; grid-template-columns: 52px 104px 1fr; gap: 8px; padding: 1px 0; border-bottom: 1px solid var(--line); }
+#log { list-style: none; margin: 0; padding: 0; max-height: 16.25rem; overflow: auto; font: 0.71875rem/1.5 var(--mono); }
+#log li { display: grid; grid-template-columns: 3.25rem 6.5rem 1fr; gap: 0.5rem; padding: 0.0625rem 0; border-bottom: 1px solid var(--line); }
 #log li b { color: var(--accent); font-weight: 400; }
 #log li span { color: var(--muted); }
 #log li u { text-decoration: none; overflow-wrap: anywhere; }
 
-textarea { width: 100%; min-height: 130px; font: 11.5px var(--mono); }
+textarea { width: 100%; min-height: 8.125rem; font: 0.71875rem var(--mono); }
 .fallback { display: none; }
 .fallback[data-open="1"] { display: block; }
-footer { max-width: 900px; margin: 0 auto; padding: 0 12px 24px; color: var(--muted); font-size: 12px; }
+footer { max-width: 56.25rem; margin: 0 auto; padding: 0 0.75rem 1.5rem; color: var(--muted); font-size: 0.75rem; }
 
 /* ------------------------------------------------------------- overlays */
 /* One accent hue for every highlight. The label says which side it is. */
@@ -254,18 +261,18 @@ footer { max-width: 900px; margin: 0 auto; padding: 0 12px 24px; color: var(--mu
 .ov-safe[data-on="1"] { display: block; }
 .ov-safe::after {
   content: attr(data-label); position: absolute;
-  font: 600 10px/1.4 var(--mono); color: var(--bg); background: var(--accent);
-  padding: 1px 5px; border-radius: 4px; white-space: nowrap;
+  font: 600 0.625rem/1.4 var(--mono); color: var(--bg); background: var(--accent);
+  padding: 0.0625rem 0.3125rem; border-radius: 0.25rem; white-space: nowrap;
 }
-/* Labels sit on the inner side of the band, so a 0px inset still shows them. */
+/* Labels sit on the inner side of the band, so a 0 inset still shows them. */
 .ov-safe[data-side="top"] { top: 0; left: 0; right: 0; border-bottom: 2px solid; }
-.ov-safe[data-side="top"]::after { right: 4px; top: 100%; margin-top: 3px; }
+.ov-safe[data-side="top"]::after { right: 0.25rem; top: 100%; margin-top: 0.1875rem; }
 .ov-safe[data-side="bottom"] { bottom: 0; left: 0; right: 0; border-top: 2px solid; }
-.ov-safe[data-side="bottom"]::after { right: 4px; bottom: 100%; margin-bottom: 3px; }
+.ov-safe[data-side="bottom"]::after { right: 0.25rem; bottom: 100%; margin-bottom: 0.1875rem; }
 .ov-safe[data-side="left"] { top: 0; bottom: 0; left: 0; width: 0; border-right: 2px solid; }
-.ov-safe[data-side="left"]::after { left: 3px; top: 50%; transform: translateY(-50%); }
+.ov-safe[data-side="left"]::after { left: 0.1875rem; top: 50%; transform: translateY(-50%); }
 .ov-safe[data-side="right"] { top: 0; bottom: 0; right: 0; width: 0; border-left: 2px solid; }
-.ov-safe[data-side="right"]::after { right: 3px; top: 50%; transform: translateY(-50%); }
+.ov-safe[data-side="right"]::after { right: 0.1875rem; top: 50%; transform: translateY(-50%); }
 
 #grid-ov, #dpr-ov { position: fixed; inset: 0; display: none; }
 #grid-ov { background-image: repeating-linear-gradient(to right, color-mix(in srgb, var(--fg) 14%, transparent) 0 1px, transparent 1px 8px), repeating-linear-gradient(to bottom, color-mix(in srgb, var(--fg) 14%, transparent) 0 1px, transparent 1px 8px), repeating-linear-gradient(to right, color-mix(in srgb, var(--accent) 55%, transparent) 0 1px, transparent 1px 64px), repeating-linear-gradient(to bottom, color-mix(in srgb, var(--accent) 55%, transparent) 0 1px, transparent 1px 64px); }
@@ -273,12 +280,12 @@ footer { max-width: 900px; margin: 0 auto; padding: 0 12px 24px; color: var(--mu
 
 /* Border only: a filled band this large tints the whole page. */
 #unit-box, #unit-box-x { position: fixed; border: 0 solid var(--accent); }
-#unit-box { top: 0; left: 0; width: 104px; border-bottom-width: 2px; }
-#unit-box-x { top: 0; left: 0; height: 48px; width: 100%; border-right-width: 2px; }
+#unit-box { top: 0; left: 0; width: 6.5rem; border-bottom-width: 2px; }
+#unit-box-x { top: 0; left: 0; height: 3rem; width: 100%; border-right-width: 2px; }
 @supports (width: 100dvw) { #unit-box-x { width: 100dvw; } }
-#unit-box span, #unit-box-x span { position: absolute; font: 600 10px/1.4 var(--mono); color: var(--bg); background: var(--accent); padding: 1px 4px; border-radius: 4px; white-space: nowrap; }
-#unit-box span { bottom: 3px; left: 2px; }
-#unit-box-x span { right: 3px; bottom: 3px; }
+#unit-box span, #unit-box-x span { position: absolute; font: 600 0.625rem/1.4 var(--mono); color: var(--bg); background: var(--accent); padding: 0.0625rem 0.25rem; border-radius: 0.25rem; white-space: nowrap; }
+#unit-box span { bottom: 0.1875rem; left: 0.125rem; }
+#unit-box-x span { right: 0.1875rem; bottom: 0.1875rem; }
 #ref-bottom { position: fixed; left: 0; right: 0; bottom: 0; height: 0; border-top: 2px dashed var(--fg); }
 #ref-right { position: fixed; top: 0; bottom: 0; right: 0; width: 0; border-left: 2px dashed var(--fg); }
 
@@ -286,42 +293,42 @@ footer { max-width: 900px; margin: 0 auto; padding: 0 12px 24px; color: var(--mu
   position: fixed; left: 0; right: 0; bottom: 0; height: var(--kb, 300px);
   display: none; pointer-events: auto; z-index: 1;
   background: var(--surface-2); border-top: 2px solid var(--accent); color: var(--muted);
-  font: 11px var(--mono); box-shadow: 0 -6px 20px rgba(0,0,0,.18);
+  font: 0.6875rem var(--mono); box-shadow: 0 -0.375rem 1.25rem rgba(0,0,0,.18);
 }
 #kb[data-on="1"] { display: flex; flex-direction: column; }
-.kb-head { display: flex; justify-content: space-between; gap: 10px; padding: 5px 10px; color: var(--accent); }
-.kb-keys { flex: 1; display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; padding: 4px 8px 8px; }
-.kb-keys span { display: grid; place-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; }
+.kb-head { display: flex; justify-content: space-between; gap: 0.625rem; padding: 0.3125rem 0.625rem; color: var(--accent); }
+.kb-keys { flex: 1; display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.25rem; padding: 0.25rem 0.5rem 0.5rem; }
+.kb-keys span { display: grid; place-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 0.25rem; }
 
 #probes { position: fixed; top: 0; left: 0; width: 0; height: 0; visibility: hidden; pointer-events: none; }
 #probes .probe { position: fixed; top: 0; left: 0; width: 0; height: 0; }
 
 /* ------------------------------------------------------------- phones */
 @media (max-width: 520px) {
-  main { padding: 10px; gap: 8px; }
-  .hero-num { font-size: 32px; }
-  .top { padding: calc(6px + var(--sat)) calc(10px + var(--sar)) 6px calc(10px + var(--sal)); }
+  main { padding: 0.625rem; gap: 0.5rem; }
+  .hero-num { font-size: 2rem; }
+  .top { padding: calc(0.375rem + var(--sat)) calc(0.625rem + var(--sar)) 0.375rem calc(0.625rem + var(--sal)); }
   .top .brand span { display: none; }
-  .kv-row .v { font-size: 13px; }
+  .kv-row .v { font-size: 0.8125rem; }
   .simctl { grid-template-columns: repeat(2, 1fr); }
-  #log li { grid-template-columns: 44px 88px 1fr; gap: 6px; }
-  #unit-box { width: 84px; }
-  .bars { --fill: 62px; }
-  .bars .bar { flex: 0 0 38px; }
+  #log li { grid-template-columns: 2.75rem 5.5rem 1fr; gap: 0.375rem; }
+  #unit-box { width: 5.25rem; }
+  .bars { --fill: 3.875rem; }
+  .bars .bar { flex: 0 0 2.375rem; }
 }
 /* The brand is the first thing to go when the controls stop fitting. */
 @media (max-width: 380px) {
   .top .brand { display: none; }
 }
-/* Bigger targets on touch, and 16px inputs so iOS does not zoom on focus. */
+/* Bigger targets on touch, and 1rem inputs so iOS does not zoom on focus. */
 @media (pointer: coarse) {
-  button, select, input[type="text"], textarea { font-size: 16px; min-height: 40px; }
-  .top button, .top select { font-size: 14px; min-height: 36px; }
-  input[type="range"] { min-height: 36px; width: 130px; }
-  input[type="checkbox"] { width: 18px; height: 18px; }
-  .chip { padding: 8px 12px; }
-  details.card > summary { padding: 14px; }
-  .kb-keys span { min-height: 30px; }
+  button, select, input[type="text"], textarea { font-size: 1rem; min-height: 2.5rem; }
+  .top button, .top select { font-size: 0.875rem; min-height: 2.25rem; }
+  input[type="range"] { min-height: 2.25rem; width: 8.125rem; }
+  input[type="checkbox"] { width: 1.125rem; height: 1.125rem; }
+  .chip { padding: 0.5rem 0.75rem; }
+  details.card > summary { padding: 0.875rem; }
+  .kb-keys span { min-height: 1.875rem; }
 }
 </style>
 </head>
@@ -362,7 +369,7 @@ footer { max-width: 900px; margin: 0 auto; padding: 0 12px 24px; color: var(--mu
   <section class="card">
     <div class="body">
       <div class="chips" id="ov-toggles"></div>
-      <div class="row" style="margin-top:10px">
+      <div class="row" style="margin-top:0.625rem">
         <label class="inline">test box
           <select id="unit-select">
             <option value="100dvh">100dvh</option>
@@ -393,7 +400,7 @@ footer { max-width: 900px; margin: 0 auto; padding: 0 12px 24px; color: var(--mu
       <div class="kv" id="kv-vp"></div>
       <div class="sub">heights</div>
       <div class="bars" id="bars-h"></div>
-      <div class="sub" style="margin-top:10px">widths</div>
+      <div class="sub" style="margin-top:0.625rem">widths</div>
       <div class="bars" id="bars-w"></div>
       <p class="note">Orange bars are JS values (<code>innerHeight</code>, <code>visualViewport.height</code>).
         The dashed line is the real viewport edge, so any gap a unit leaves is visible.</p>
@@ -428,8 +435,8 @@ footer { max-width: 900px; margin: 0 auto; padding: 0 12px 24px; color: var(--mu
     <summary>keyboard</summary>
     <div class="body">
       <div class="kv" id="kv-kb"></div>
-      <div class="row" style="margin-top:10px">
-        <input type="text" id="kb-real-input" placeholder="focus me to raise the real keyboard" style="flex:1 1 160px;min-width:0">
+      <div class="row" style="margin-top:0.625rem">
+        <input type="text" id="kb-real-input" placeholder="focus me to raise the real keyboard" style="flex:1 1 10rem;min-width:0">
         <button id="btn-blur" type="button">blur</button>
       </div>
       <p class="note">A large drop in <code>innerHeight</code> with an unchanged width is the software
@@ -470,11 +477,11 @@ footer { max-width: 900px; margin: 0 auto; padding: 0 12px 24px; color: var(--mu
     <summary>storage &amp; network</summary>
     <div class="body">
       <div class="kv" id="kv-store"></div>
-      <div class="row" style="margin-top:10px">
+      <div class="row" style="margin-top:0.625rem">
         <button id="btn-storage" type="button">run tests</button>
         <button id="btn-3p" type="button">3rd-party cookie</button>
-        <label class="inline" style="flex:1 1 180px">cross-origin target
-          <input type="text" id="tp-url" value="/3p-cookie-test.html" style="flex:1 1 100px;min-width:0">
+        <label class="inline" style="flex:1 1 11.25rem">cross-origin target
+          <input type="text" id="tp-url" value="/3p-cookie-test.html" style="flex:1 1 6.25rem;min-width:0">
         </label>
       </div>
       <p class="note">Partitioning can only be proven from a real cross-site context. Embed this page in a
@@ -499,7 +506,7 @@ footer { max-width: 900px; margin: 0 auto; padding: 0 12px 24px; color: var(--mu
   <details class="card" id="sec-log">
     <summary>event log <span class="note" id="log-count"></span></summary>
     <div class="body">
-      <div class="row" style="margin-bottom:8px">
+      <div class="row" style="margin-bottom:0.5rem">
         <button id="btn-log-clear" type="button">clear</button>
         <button id="btn-json" type="button">download json</button>
       </div>
@@ -532,7 +539,7 @@ footer { max-width: 900px; margin: 0 auto; padding: 0 12px 24px; color: var(--mu
           </select>
         </label>
       </div>
-      <div class="hero-meta" id="meta-out" style="margin-top:12px"></div>
+      <div class="hero-meta" id="meta-out" style="margin-top:0.75rem"></div>
     </div>
   </details>
 
@@ -540,7 +547,7 @@ footer { max-width: 900px; margin: 0 auto; padding: 0 12px 24px; color: var(--mu
 
 <footer>
   <div class="fallback" id="copy-fallback" data-open="0">
-    <p class="note" style="margin:0 0 6px">Clipboard blocked — copy from here:</p>
+    <p class="note" style="margin:0 0 0.375rem">Clipboard blocked — copy from here:</p>
     <textarea id="copy-text" readonly></textarea>
   </div>
 </footer>
@@ -1116,7 +1123,7 @@ const FEATURES = [
 const chipTests = [];
 FEATURES.forEach(([group, list]) => {
   const g = document.createElement("div");
-  g.style.marginTop = "12px";
+  g.style.marginTop = "0.75rem";
   const h = document.createElement("div");
   h.className = "sub";
   h.textContent = group;

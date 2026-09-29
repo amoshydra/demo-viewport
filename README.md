@@ -25,7 +25,7 @@ Jekyll, which silently drops any file whose name begins with an underscore.
 | safe area | The four `env(safe-area-inset-*)` values, `env(max(...))`, whether `env()`/`constant()` parse, the active `viewport-fit`, the manual force override, and an inset simulator |
 | keyboard | Live `innerHeight` vs `visualViewport.height`, largest shrink seen, `interactive-widget`, and an input to raise the real keyboard |
 | pointer & hover | Pointer type, contact geometry, pressure, tilt and twist, `(hover: hover)`, `(pointer: coarse/fine/none)` and the `any-` variants, `maxTouchPoints`, tap latency, long-press timing, double taps, and a hover target that detects a stuck `:hover` |
-| media queries | Colour scheme, `display-mode`, reduced motion, forced colours, gamut, plus a live grid of 36 queries that updates and logs every change |
+| media queries | Colour scheme, `display-mode`, reduced motion, forced colours, gamut, computed `text-size-adjust`, plus a live grid of 36 queries that updates and logs every change |
 | environment | User agent, UA client hints including high-entropy values, platform, languages, timezone, cores, memory, touch points, `isSecureContext`, `crossOriginIsolated`, referrer |
 | storage & network | `localStorage`, `sessionStorage`, cookies, IndexedDB, CacheStorage, quota, a real third-party cookie test, `navigator.connection` |
 | performance | FPS, long tasks, JS heap, navigation timing, transfer sizes, protocol |
@@ -98,6 +98,44 @@ The page is built for being read on the device it is debugging:
 - `-webkit-text-size-adjust: 100%` stops the system from inflating the readouts.
 - Verified with no horizontal overflow and no wrapped values at 320, 375, 412, 768
   and 1280px wide, with every section both open and closed.
+
+## Units: what is rem and what has to stay px
+
+Type, spacing and control sizes are in `rem` so they follow the browser's font
+size preference. Body is `1rem`, and `-webkit-text-size-adjust` is left at its
+initial value of `auto` so iOS applies the Accessibility larger-text setting. The
+header toggle switches it to `100%` to pin the text when you would rather have
+predictable layout than a preference — useful when you are reading numbers off a
+screenshot.
+
+Roughly half the `px` values in the file are **not** sizes, they are CSS-pixel
+*measurements*, and converting those would make the page report wrong numbers:
+
+| Stays `px` | Why |
+| --- | --- |
+| Everything the script prints: `412 × 780`, `780px`, physical pixels, contact size, scrollbar width | Those are readings, not sizes. Rendering them in `rem` would make the page lie. |
+| `height = env(safe-area-inset-*) + "px"` | A device measurement. |
+| `#dpr-ov` background, `calc(1px * var(--dpr))` | One line per device pixel. A CSS px *is* dpr device px; there is no rem expression for it. |
+| `#grid-ov` background, `1px 8px` / `1px 64px` | A CSS-pixel ruler. At `0.5rem` the grid stops marking pixel boundaries as soon as the font size changes. |
+| 1px and 2px border widths, the dashed viewport-edge lines | Hairlines and edge markers. |
+| `--kb` simulated keyboard height | A device height, entered in px. |
+| Media query breakpoints | `rem` in a media query resolves against the *initial* font size, so a rem breakpoint can never follow the user's preference. |
+
+`pt` is deliberately not used anywhere: on screen `1pt` is `4/3px` by definition,
+so it would make text ignore the font size preference completely.
+
+Two consequences of using `rem` that are worth knowing:
+
+- A value that is naturally wider than its row (a long platform string, the
+  `100%` note) wraps at a word boundary when the font is scaled up, rather than
+  overflowing. The card has `overflow: hidden`, so an unbreakable overflow would
+  be clipped rather than scrollable.
+- The bar labels and `#log` columns are rem for the same reason: at a fixed px
+  they clipped as soon as the type grew.
+
+Verified with no horizontal overflow and nothing clipped at root font sizes 16, 20,
+24 and 32px, at 320/375/412/768/1280px wide, with every section open and closed.
+Every measurement readout is byte-identical to the px version at the default size.
 
 ## Pointer, hover and tap behaviour
 
