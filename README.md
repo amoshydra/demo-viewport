@@ -59,7 +59,7 @@ each page. Blank a field on `viewport.html` to go back to `env()`.
 | --- | --- |
 | *always visible* | Viewport size, `devicePixelRatio`, the four safe-area insets, `100dvh`, the `vh − dvh` gap, scroll position, and the active viewport meta |
 | *always visible* | Toggles for each highlight, the unit test box picker, simulated keyboard height, and rotate / fullscreen / vibrate / file-picker buttons |
-| viewport & units | `innerWidth/Height`, visual viewport, screen size, physical pixel size, `html` client size, `100%` behaviour inside a default-height body, scrollbar width, scroll position, all eight units measured from real probe elements with a bar chart per axis, and the four `env(viewport-segment-*)` positions |
+| viewport & units | `innerWidth/Height`, visual viewport, screen size, physical pixel size, `html` client size, `100%` behaviour inside a default-height body, scrollbar width, scroll position, all eight units measured from real probe elements with a bar chart per axis, the four `env(viewport-segment-*)` positions, and the orientation type and angle decoded to which way round landscape is |
 | safe area | The four `env(safe-area-inset-*)` values, `env(max(...))`, whether `env()`/`constant()` parse, the active `viewport-fit`, the manual force override, and an inset simulator |
 | keyboard | Live `innerHeight` vs `visualViewport.height`, largest shrink seen, `interactive-widget`, and an input to raise the real keyboard |
 | pointer & hover | Pointer type, contact geometry, pressure, tilt and twist, `(hover: hover)`, `(pointer: coarse/fine/none)` and the `any-` variants, `maxTouchPoints`, tap latency, long-press timing, double taps, and a hover target that detects a stuck `:hover` |

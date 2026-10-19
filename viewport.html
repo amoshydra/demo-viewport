@@ -451,6 +451,15 @@ footer { max-width: 56.25rem; margin: 0 auto; padding: 0 calc(0.75rem + var(--sa
       <div class="bars" id="bars-w"></div>
       <p class="note">Orange bars are JS values (<code>innerHeight</code>, <code>visualViewport.height</code>).
         The dashed line is the real viewport edge, so any gap a unit leaves is visible.</p>
+      <p class="note">The angle is the rotation counter-clockwise from the screen's
+        <em>natural</em> orientation, so on a portrait-natural phone
+        <code>landscape-primary</code> is 90° (device top edge to the left) and
+        <code>landscape-secondary</code> is 270° (top edge to the right). The spec's type
+        list shifts by 90° on a natural-landscape screen, and a WebView does not always
+        agree with the browser on the same device, so rotate both ways once and note the
+        pair you get. <code>screen.orientation</code> describes the display, not the window,
+        so a resized desktop window can report a landscape type while the media query above
+        says portrait.</p>
     </div>
   </details>
 
@@ -678,6 +687,19 @@ function segSummary(col, row) {
   const h = segValue(col, row, "height");
   if (!w && !h) return "not reported";
   return w + " × " + h + " at " + segValue(col, row, "left") + "," + segValue(col, row, "top");
+}
+/* Which way round landscape is. Per the Screen Orientation spec the angle is the
+   rotation counter-clockwise from the screen's *natural* orientation, and the type
+   list for a natural-portrait screen is portrait-primary 0, landscape-primary 90,
+   portrait-secondary 180, landscape-secondary 270. A natural-landscape screen (some
+   tablets, a foldable's inner display) shifts the whole list by 90, so treat this as
+   a decode of the number, not as a promise about the hardware. */
+function angleHint(a) {
+  if (a === 0) return "natural";
+  if (a === 90) return "90° counter-clockwise — device top to the left";
+  if (a === 180) return "180° — upside down";
+  if (a === 270) return "270° counter-clockwise, i.e. 90° clockwise — device top to the right";
+  return "";
 }
 probes.pctFixed = probe({ height: "100%" });
 probes.pctAuto = document.createElement("div");
@@ -962,7 +984,12 @@ up.vp = table($("#kv-vp"), [
   ["lvh − svh", D => px(D.units.deltas["lvh - svh"]), { cls: D => (D.units.deltas["lvh - svh"] > 0 ? "warn" : "") }],
   ["vh − dvh", D => px(D.units.deltas["vh - dvh"])],
   ["100vw / 100dvw", D => px(D.units.width.vw) + " / " + px(D.units.width.dvw)],
-  ["orientation", D => D.viewport.orientation]
+  ["orientation", D => D.viewport.orientation],
+  ["orientation type", D => D.display.screenOrientation || "unsupported"],
+  ["orientation angle", D => D.display.screenOrientationAngle == null
+    ? "unsupported"
+    : D.display.screenOrientationAngle + "°  " + angleHint(D.display.screenOrientationAngle)],
+  ["window.orientation", () => typeof window.orientation === "number" ? String(window.orientation) : "not reported"]
 ]);
 
 up.safe = table($("#kv-safe"), [
@@ -1362,6 +1389,12 @@ function schedule() { if (!raf) raf = requestAnimationFrame(() => { raf = 0; ref
 addEventListener("resize", schedule, { passive: true });
 addEventListener("scroll", schedule, { passive: true });
 addEventListener("orientationchange", () => { log("orientation", innerWidth + "×" + innerHeight); schedule(); });
+if (screen.orientation && screen.orientation.addEventListener) {
+  screen.orientation.addEventListener("change", () => {
+    log("screen.orientation", screen.orientation.type + " " + screen.orientation.angle + "°");
+    schedule();
+  });
+}
 if (window.visualViewport) {
   const onVV = () => {
     const dh = innerHeight - lastVh;
