@@ -652,6 +652,33 @@ SIDES.forEach(side => {
   b.style[prop] = "env(max(safe-area-inset-" + side + "), 0px)";
   probes.max[side] = b;
 });
+/* Window Segments. env(viewport-segment-*) has no JS surface either, so it is
+   resolved the same way. Position is (column, row) counted from the top left, and a
+   device that is not split reports nothing for every position. */
+const SEG_POS = [[0, 0], [0, 1], [1, 0], [1, 1]];
+const SEG_SIDES = ["width", "height", "top", "left", "right", "bottom"];
+probes.seg = {};
+SEG_POS.forEach(([col, row]) => {
+  const group = {};
+  SEG_SIDES.forEach(side => {
+    const horiz = side === "width" || side === "left" || side === "right";
+    const el = probe({});
+    if (horiz) el.style.width = "env(viewport-segment-" + side + " " + col + " " + row + ", 0px)";
+    else el.style.height = "env(viewport-segment-" + side + " " + col + " " + row + ", 0px)";
+    group[side] = { el, prop: horiz ? "width" : "height" };
+  });
+  probes.seg[col + "," + row] = group;
+});
+function segValue(col, row, side) {
+  const p = probes.seg[col + "," + row][side];
+  return parseFloat(getComputedStyle(p.el)[p.prop]) || 0;
+}
+function segSummary(col, row) {
+  const w = segValue(col, row, "width");
+  const h = segValue(col, row, "height");
+  if (!w && !h) return "not reported";
+  return w + " × " + h + " at " + segValue(col, row, "left") + "," + segValue(col, row, "top");
+}
 probes.pctFixed = probe({ height: "100%" });
 probes.pctAuto = document.createElement("div");
 probes.pctAuto.style.height = "100%";
@@ -861,7 +888,10 @@ function collect() {
       displayMode: ["standalone", "fullscreen", "window-controls-overlay", "minimal-ui", "browser"].filter(m => mq("(display-mode: " + m + ")"))[0] || "browser",
       colorGamut: ["rec2020", "p3", "srgb"].filter(g => mq("(color-gamut: " + g + ")"))[0] || null,
       dynamicRange: ["high", "standard"].filter(d => mq("(dynamic-range: " + d + ")"))[0] || null,
-      monochrome: mq("(monochrome)"), scriptingEnabled: mq("(scripting: enabled)")
+      monochrome: mq("(monochrome)"), scriptingEnabled: mq("(scripting: enabled)"),
+      devicePosture: mq("(device-posture: folded)") ? "folded" : mq("(device-posture: continuous)") ? "continuous" : null,
+      horizontalSegments: mq("(horizontal-viewport-segments: 2)") ? 2 : 1,
+      verticalSegments: mq("(vertical-viewport-segments: 2)") ? 2 : 1
     },
     input: {
       lastPointer: lastPointer.type, lastPointerPressure: r2(lastPointer.pressure), lastPointerButtons: lastPointer.buttons,
@@ -913,6 +943,10 @@ const up = {};
 up.vp = table($("#kv-vp"), [
   ["viewport", D => D.viewport.innerWidth + " × " + D.viewport.innerHeight],
   ["visual viewport", D => D.visualViewport ? D.visualViewport.width + " × " + D.visualViewport.height : "unsupported"],
+  ["segment 0,0", () => segSummary(0, 0)],
+  ["segment 0,1", () => segSummary(0, 1)],
+  ["segment 1,0", () => segSummary(1, 0)],
+  ["segment 1,1", () => segSummary(1, 1)],
   ["pixel ratio", D => n(D.display.devicePixelRatio) + "×" + (D.display.devicePixelRatio % 1 === 0 ? "" : "  (fractional)")],
   ["screen", D => D.display.screen.width + " × " + D.display.screen.height + (D.display.screen.availHeight !== D.display.screen.height ? "  (avail " + D.display.screen.availHeight + ")" : "")],
   ["physical viewport", D => D.display.physicalViewport.width + " × " + D.display.physicalViewport.height + " px"],
@@ -967,6 +1001,8 @@ up.pointer = table($("#kv-pointer"), [
 
 up.media = table($("#kv-media"), [
   ["colour scheme", D => D.media.prefersColorScheme || "no preference"],
+  ["device posture", D => D.media.devicePosture || "not reported"],
+  ["viewport segments", D => D.media.horizontalSegments + " × " + D.media.verticalSegments],
   ["display mode", D => D.media.displayMode, { cls: D => (D.media.displayMode !== "browser" ? "ok" : "") }],
   ["reduced motion", D => bool(D.media.prefersReducedMotion)],
   ["forced colours", D => bool(D.media.forcedColors), { cls: D => (D.media.forcedColors ? "warn" : "") }],
@@ -1042,6 +1078,8 @@ const MQ_LIST = [
   "(display-mode: browser)", "(display-mode: standalone)", "(display-mode: fullscreen)",
   "(display-mode: window-controls-overlay)",
   "(orientation: portrait)", "(orientation: landscape)",
+  "(horizontal-viewport-segments: 2)", "(vertical-viewport-segments: 2)",
+  "(device-posture: folded)", "(device-posture: continuous)",
   "(min-resolution: 1dppx)", "(min-resolution: 2dppx)", "(min-resolution: 3dppx)",
   "(prefers-reduced-data: reduce)", "(update: fast)", "(scripting: enabled)"
 ];

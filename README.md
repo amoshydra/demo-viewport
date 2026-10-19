@@ -59,11 +59,11 @@ each page. Blank a field on `viewport.html` to go back to `env()`.
 | --- | --- |
 | *always visible* | Viewport size, `devicePixelRatio`, the four safe-area insets, `100dvh`, the `vh − dvh` gap, scroll position, and the active viewport meta |
 | *always visible* | Toggles for each highlight, the unit test box picker, simulated keyboard height, and rotate / fullscreen / vibrate / file-picker buttons |
-| viewport & units | `innerWidth/Height`, visual viewport, screen size, physical pixel size, `html` client size, `100%` behaviour inside a default-height body, scrollbar width, scroll position, and all eight units measured from real probe elements with a bar chart per axis |
+| viewport & units | `innerWidth/Height`, visual viewport, screen size, physical pixel size, `html` client size, `100%` behaviour inside a default-height body, scrollbar width, scroll position, all eight units measured from real probe elements with a bar chart per axis, and the four `env(viewport-segment-*)` positions |
 | safe area | The four `env(safe-area-inset-*)` values, `env(max(...))`, whether `env()`/`constant()` parse, the active `viewport-fit`, the manual force override, and an inset simulator |
 | keyboard | Live `innerHeight` vs `visualViewport.height`, largest shrink seen, `interactive-widget`, and an input to raise the real keyboard |
 | pointer & hover | Pointer type, contact geometry, pressure, tilt and twist, `(hover: hover)`, `(pointer: coarse/fine/none)` and the `any-` variants, `maxTouchPoints`, tap latency, long-press timing, double taps, and a hover target that detects a stuck `:hover` |
-| media queries | Colour scheme, `display-mode`, reduced motion, forced colours, gamut, computed `text-size-adjust`, plus a live grid of 36 queries that updates and logs every change |
+| media queries | Colour scheme, `display-mode`, reduced motion, forced colours, gamut, computed `text-size-adjust`, and a live grid of 40 queries that updates and logs every change, including the fold-aware `(horizontal-viewport-segments)`, `(vertical-viewport-segments)` and `(device-posture)` features |
 | environment | User agent, UA client hints including high-entropy values, platform, languages, timezone, cores, memory, touch points, `isSecureContext`, `crossOriginIsolated`, referrer |
 | storage & network | `localStorage`, `sessionStorage`, cookies, IndexedDB, CacheStorage, quota, a real third-party cookie test, `navigator.connection` |
 | performance | FPS, long tasks, JS heap, navigation timing, transfer sizes, protocol |
