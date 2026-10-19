@@ -4,8 +4,9 @@ A single-file debug page for inspecting a WebView from the inside. Open it in th
 WebView you want to test, then read the numbers off the screen.
 
 ```
-index.html
-3p-cookie-test.html     # passive cross-site target for the cookie test
+index.html                  # viewport / safe-area diagnostics
+nav-test.html               # navigation placement prototype
+3p-cookie-test.html         # passive cross-site target for the cookie test
 ```
 
 No build step, no dependencies, no network calls. Enable GitHub Pages for this
@@ -36,6 +37,61 @@ Jekyll, which silently drops any file whose name begins with an underscore.
 Everything below the first two blocks is collapsed by default, so the page opens
 as a single screenful. Readouts update live while the page scrolls, so you can watch
 the numbers change when the keyboard opens or a system bar animates.
+
+## nav-test.html: navigation placement
+
+A separate prototype for one question: where should the navigation go, and does it
+clear the notch, the status bar and the home indicator in every orientation?
+
+Switch between **left sidebar**, **right sidebar** and **bottom bar**, or leave it on
+**auto**. Auto picks the bottom bar on narrow or portrait viewports and a sidebar when
+the viewport is wide, using the *notch side* setting to decide which side the sidebar
+goes on — the sidebar belongs over the notch, so the notch's own space becomes part of
+the bar and the content starts clear of it.
+
+Keyboard: `a` `l` `r` `b` switch layouts, `c` toggles the controls.
+
+The controls are a FAB that opens a sheet, so the stage is unobstructed until you ask
+for them. The FAB is offset by the nav's own footprint, so it never covers the nav it
+is helping you test.
+
+### What it gets right about the insets
+
+- **A bar's total size is its content size *plus* the inset.** A landscape notch is
+  about 59px. A 76px sidebar that puts the inset *inside* its 76px leaves 9px for a
+  20px icon, and the icon overflows. The bars here are `calc(base + inset)`, so the
+  content box stays the same size in every orientation.
+- **The content offset matches the bar's real size**, so nothing hides underneath.
+- **The FAB offsets itself by `--nav-w` / `--nav-h`**, which already include the inset.
+- **Flipping the notch side moves the simulated inset with it**, rather than leaving it
+  on the old side where it would prove nothing.
+
+### Device presets
+
+Rather than trusting `env()` on a desktop browser (it reports `0px`), pick a preset and
+the four insets are forced to that device's real values. Landscape presets put the
+notch on the side given by the notch-side control.
+
+| Preset | top | right | bottom | left |
+| --- | --- | --- | --- | --- |
+| iPhone 15 Pro · portrait | 59 | 0 | 34 | 0 |
+| iPhone 15 Pro · landscape | 0 | 0 | 21 | 59 |
+| iPhone 16 Pro · portrait | 62 | 0 | 34 | 0 |
+| iPhone 16 Pro · landscape | 0 | 0 | 21 | 62 |
+| iPhone 16 Pro Max · portrait | 62 | 0 | 34 | 0 |
+| iPhone SE (no notch) | 0 | 0 | 0 | 0 |
+
+`force insets` overrides all four by hand, and the values persist in `localStorage`
+because switching the viewport meta reloads the page. Blank a field to go back to
+`env()`.
+
+### Orientation behaviour
+
+`(orientation: landscape)` and `(min-width: 40rem)` drive the auto choice. Reminder
+from the section above: a media query breakpoint cannot use `rem` if you want it to
+track the user's font size — `rem` in a query resolves against the *initial* font size.
+These breakpoints are deliberately in `rem` for the opposite reason, so they follow
+the browser default rather than the preference.
 
 ## Safe area
 

@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<title>Nav Placement Test</title>
+<meta name="viewport" id="viewport-meta" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#0b0b0d" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0b0d'/%3E%3Crect x='6' y='5' width='20' height='22' rx='2' fill='none' stroke='%237aa2f7' stroke-width='2'/%3E%3Crect x='6' y='9' width='20' height='2' fill='%237aa2f7' opacity='.55'/%3E%3Crect x='6' y='21' width='20' height='2' fill='%237aa2f7' opacity='.55'/%3E%3C/svg%3E">
+<style>
+:root {
+  --bg: #f6f6f7; --surface: #fff; --surface-2: #f0f0f2; --line: #e2e2e6;
+  --fg: #17171a; --muted: #6a6a75; --accent: #2563eb; --good: #15803d;
+  --warn: #a16207; --bad: #b91c1c; --mono: ui-monospace, Menlo, Consolas, monospace;
+  /* The same inset mechanism as index.html, so force-override works identically. */
+  --sat: env(safe-area-inset-top, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+}
+html[data-theme="dark"] {
+  --bg: #0b0b0d; --surface: #141417; --surface-2: #1d1d22; --line: #2a2a31;
+  --fg: #f3f3f5; --muted: #9a9aa6; --accent: #7aa2f7; --good: #4ade80;
+  --warn: #fbbf24; --bad: #fb7185;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--fg);
+  font: 1rem/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  padding: 0 0 var(--sab);
+  -webkit-text-size-adjust: auto;
+}
+a { color: var(--accent); }
+
+/* ------------------------------------------------------------------ stage */
+.stage { position: fixed; inset: 0; overflow: hidden; background: var(--bg); }
+
+/* nav bars --------------------------------------------------------------- */
+.nav {
+  position: fixed; z-index: 5;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  display: none; align-items: center; justify-content: space-around;
+  gap: 0.25rem; padding: 0.375rem;
+  font: 0.75rem/1.2 var(--mono);
+}
+/* left sidebar */
+.nav-left {
+  top: 0; left: 0; bottom: 0; width: 4.75rem; flex-direction: column;
+  padding-top: max(0.5rem, var(--sat));
+  padding-bottom: max(0.5rem, var(--sab));
+  padding-left: max(0.5rem, var(--sal));
+  padding-right: 0.5rem;
+  border-right-width: 1px; border-left: 0; border-top: 0; border-bottom: 0;
+}
+/* right sidebar */
+.nav-right {
+  top: 0; right: 0; bottom: 0; width: 4.75rem; flex-direction: column;
+  padding-top: max(0.5rem, var(--sat));
+  padding-bottom: max(0.5rem, var(--sab));
+  padding-right: max(0.5rem, var(--sar));
+  padding-left: 0.5rem;
+  border-left-width: 1px; border-right: 0; border-top: 0; border-bottom: 0;
+}
+/* bottom bar */
+.nav-bottom {
+  bottom: 0; left: 0; right: 0; height: 3.5rem; flex-direction: row;
+  padding-top: 0.375rem;
+  padding-bottom: max(0.375rem, var(--sab));
+  padding-left: max(0.75rem, var(--sal));
+  padding-right: max(0.75rem, var(--sar));
+  border-top-width: 1px; border-bottom: 0; border-left: 0; border-right: 0;
+}
+.nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 0.25rem;
+  flex: 1; padding: 0.25rem; border-radius: 0.5rem; cursor: pointer;
+  color: var(--muted); background: transparent; border: 0; font: inherit;
+}
+.nav-item:hover { background: var(--surface-2); color: var(--fg); }
+.nav-item.active { color: var(--accent); }
+.nav-item svg { width: 1.25rem; height: 1.25rem; }
+.nav-item span { font-size: 0.625rem; }
+
+/* content area ----------------------------------------------------------- */
+/* A bar's total size is its content size PLUS the inset, otherwise the inset eats
+   the content: with a 59px landscape notch a 76px sidebar leaves 9px for a 20px
+   icon. --nav-w / --nav-h are the full sizes, including the inset. */
+:root { --nav-base: 4.75rem; --nav-base-narrow: 4rem; --nav-h-base: 3.5rem; }
+body[data-layout="left"], body[data-layout="auto"][data-effective="left"] { --nav-w: calc(var(--nav-base) + var(--sal)); }
+body[data-layout="right"], body[data-layout="auto"][data-effective="right"] { --nav-w: calc(var(--nav-base) + var(--sar)); }
+body[data-layout="bottom"], body[data-layout="auto"][data-effective="bottom"] { --nav-h: calc(var(--nav-h-base) + var(--sab)); }
+
+.nav-left { width: var(--nav-w, var(--nav-base)); }
+.nav-right { width: var(--nav-w, var(--nav-base)); }
+.nav-bottom { height: var(--nav-h, var(--nav-h-base)); }
+
+/* content area ----------------------------------------------------------- */
+.content {
+  position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+  padding: max(0.75rem, var(--sat)) 1rem 1rem max(0.75rem, var(--sal));
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+}
+body[data-layout="left"] .content,
+body[data-layout="auto"][data-effective="left"] .content { left: var(--nav-w); }
+body[data-layout="right"] .content,
+body[data-layout="auto"][data-effective="right"] .content { right: var(--nav-w); }
+body[data-layout="bottom"] .content,
+body[data-layout="auto"][data-effective="bottom"] .content {
+  /* The content box already stops above the nav, so this is just breathing room.
+     The nav's own height carries the bottom inset. */
+  bottom: var(--nav-h);
+  padding-bottom: 1rem;
+}
+
+/* nav visibility -------------------------------------------------------- */
+.nav { display: none; }
+body[data-layout="left"] .nav-left,
+body[data-layout="right"] .nav-right,
+body[data-layout="bottom"] .nav-bottom,
+body[data-layout="auto"][data-effective="left"] .nav-left,
+body[data-layout="auto"][data-effective="right"] .nav-right,
+body[data-layout="auto"][data-effective="bottom"] .nav-bottom { display: flex; }
+
+/* safe-area overlay ----------------------------------------------------- */
+.ov { position: fixed; inset: 0; pointer-events: none; z-index: 10; }
+.ov-band { position: fixed; display: none; background: color-mix(in srgb, var(--accent) 16%, transparent); border-color: var(--accent); }
+.ov-band[data-on="1"] { display: block; }
+.ov-top { top: 0; left: 0; right: 0; border-bottom: 2px solid; }
+.ov-bottom { bottom: 0; left: 0; right: 0; border-top: 2px solid; }
+.ov-left { top: 0; bottom: 0; left: 0; border-right: 2px solid; }
+.ov-right { top: 0; bottom: 0; right: 0; border-left: 2px solid; }
+.ov-label { position: absolute; font: 600 0.625rem/1.4 var(--mono); color: var(--bg); background: var(--accent); padding: 0.0625rem 0.25rem; border-radius: 0.25rem; white-space: nowrap; }
+.ov-top .ov-label { right: 0.25rem; top: 100%; margin-top: 0.1875rem; }
+.ov-bottom .ov-label { right: 0.25rem; bottom: 100%; margin-bottom: 0.1875rem; }
+.ov-left .ov-label { left: 100%; margin-left: 0.1875rem; top: 50%; transform: translateY(-50%); }
+.ov-right .ov-label { right: 100%; margin-right: 0.1875rem; top: 50%; transform: translateY(-50%); }
+
+/* content styling -------------------------------------------------------- */
+.content-head { padding-bottom: 0.75rem; border-bottom: 1px solid var(--line); margin-bottom: 0.75rem; }
+.content-head h1 { font-size: 1.125rem; margin: 0 0 0.25rem; }
+.content-head p { color: var(--muted); font-size: 0.8125rem; margin: 0; }
+.list { display: flex; flex-direction: column; gap: 0.5rem; }
+.item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: var(--surface); border: 1px solid var(--line); border-radius: 0.625rem; }
+.item .ic { width: 2rem; height: 2rem; display: grid; place-items: center; background: var(--surface-2); border-radius: 0.5rem; color: var(--accent); flex: 0 0 auto; }
+.item .meta { flex: 1; min-width: 0; }
+.item .title { font-size: 0.875rem; font-weight: 500; }
+.item .sub { font-size: 0.75rem; color: var(--muted); }
+.badge { font: 0.625rem/1 var(--mono); color: var(--muted); background: var(--surface-2); border: 1px solid var(--line); padding: 0.125rem 0.375rem; border-radius: 999px; }
+
+/* floating control panel ------------------------------------------------- */
+/* controls: a FAB that opens a sheet, so the stage is unobstructed by default.
+   The FAB is offset by the nav's own footprint, so it never covers the nav. */
+.fab {
+  position: fixed; z-index: 30;
+  right: calc(0.75rem + var(--sar)); bottom: calc(0.75rem + var(--sab));
+  width: 2.75rem; height: 2.75rem; padding: 0; border-radius: 999px;
+  display: grid; place-items: center; font-size: 1.25rem; line-height: 1;
+  background: var(--surface); color: var(--fg);
+  border: 1px solid var(--line); box-shadow: 0 0.25rem 1rem rgba(0,0,0,.22);
+}
+body[data-layout="left"] .fab,
+body[data-layout="auto"][data-effective="left"] .fab { left: calc(var(--nav-w) + 0.75rem); right: auto; }
+body[data-layout="right"] .fab,
+body[data-layout="auto"][data-effective="right"] .fab { right: calc(var(--nav-w) + 0.75rem); }
+body[data-layout="bottom"] .fab,
+body[data-layout="auto"][data-effective="bottom"] .fab { bottom: calc(var(--nav-h) + 0.75rem); }
+
+.sheet { position: fixed; inset: 0; z-index: 40; display: none; }
+.sheet.open { display: block; }
+.sheet .backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.4); }
+.panel {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  max-height: 85vh; display: flex; flex-direction: column;
+  background: var(--surface); border-top: 1px solid var(--line);
+  border-radius: 1rem 1rem 0 0;
+  padding-bottom: max(0.5rem, var(--sab));
+  box-shadow: 0 -0.5rem 2rem rgba(0,0,0,.28);
+}
+@media (min-width: 40rem) {
+  .panel { left: auto; bottom: 0; top: 0; width: 20rem; max-height: none; border-radius: 0;
+    border-top: 0; border-left: 1px solid var(--line); padding-bottom: max(0.75rem, var(--sab)); }
+}
+.panel-head { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; border-bottom: 1px solid var(--line); flex: 0 0 auto; }
+.panel-head h2 { font-size: 0.875rem; margin: 0; flex: 1; }
+.panel-body { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto; }
+.seg { display: flex; gap: 0.25rem; }
+.seg button { flex: 1; padding: 0.375rem 0.25rem; font-size: 0.75rem; }
+.seg button.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.field { display: flex; flex-direction: column; gap: 0.25rem; }
+.field label { font-size: 0.75rem; color: var(--muted); }
+.field .row { gap: 0.25rem; }
+.field input[type=text] { width: 100%; font: 0.75rem var(--mono); }
+.field select { width: 100%; font: 0.75rem var(--mono); }
+.readout { font: 0.75rem/1.5 var(--mono); color: var(--muted); }
+.readout b { color: var(--fg); font-weight: 500; }
+.toggle { display: inline-flex; align-items: center; gap: 0.375rem; font-size: 0.8125rem; }
+.toggle input { accent-color: var(--accent); }
+
+/* ------------------------------------------------------------- phones */
+@media (max-width: 520px) {
+  :root { --nav-base: 4rem; }
+  .content { padding-left: max(0.5rem, var(--sal)); }
+  .panel { width: calc(100vw - 1.5rem); }
+}
+@media (pointer: coarse) {
+  button, select, input[type=text] { min-height: 2.25rem; font-size: 1rem; }
+  .nav-item { min-height: 2.75rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <nav class="nav nav-left" aria-label="left navigation">
+    <button class="nav-item active" data-id="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="nav-item" data-id="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span>Search</span>
+    </button>
+    <button class="nav-item" data-id="library">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <span>Library</span>
+    </button>
+    <button class="nav-item" data-id="profile">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 1-4-4H8a4 4 0 0 1-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </button>
+  </nav>
+
+  <nav class="nav nav-right" aria-label="right navigation">
+    <button class="nav-item active" data-id="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="nav-item" data-id="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span>Search</span>
+    </button>
+    <button class="nav-item" data-id="library">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <span>Library</span>
+    </button>
+    <button class="nav-item" data-id="profile">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 1-4-4H8a4 4 0 0 1-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </button>
+  </nav>
+
+  <nav class="nav nav-bottom" aria-label="bottom navigation">
+    <button class="nav-item active" data-id="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="nav-item" data-id="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span>Search</span>
+    </button>
+    <button class="nav-item" data-id="library">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <span>Library</span>
+    </button>
+    <button class="nav-item" data-id="profile">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 1-4-4H8a4 4 0 0 1-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </button>
+  </nav>
+
+  <main class="content">
+    <header class="content-head">
+      <h1>Nav placement test</h1>
+      <p>Switch the layout with the controls. Watch the nav clear the status bar, the
+        notch and the home indicator in each orientation.</p>
+    </header>
+    <div class="list" id="list"></div>
+  </main>
+</div>
+
+<!-- safe-area overlay ---------------------------------------------------- -->
+<div class="ov" id="ov">
+  <div class="ov-band ov-top" data-side="top"><span class="ov-label" id="ov-top"></span></div>
+  <div class="ov-band ov-right" data-side="right"><span class="ov-label" id="ov-right"></span></div>
+  <div class="ov-band ov-bottom" data-side="bottom"><span class="ov-label" id="ov-bottom"></span></div>
+  <div class="ov-band ov-left" data-side="left"><span class="ov-label" id="ov-left"></span></div>
+</div>
+
+<!-- controls: FAB opens a sheet so the stage stays clear -------------------- -->
+<button class="fab" id="fab" type="button" aria-label="open controls" aria-expanded="false">≡</button>
+
+<div class="sheet" id="sheet">
+  <div class="backdrop" id="backdrop"></div>
+  <aside class="panel" role="dialog" aria-label="controls">
+    <div class="panel-head">
+      <h2>controls</h2>
+      <button id="panel-close" type="button" aria-label="close controls">✕</button>
+    </div>
+    <div class="panel-body">
+    <div class="field">
+      <label>layout</label>
+      <div class="seg" id="seg-layout">
+        <button data-layout="auto" class="active">auto</button>
+        <button data-layout="left">left</button>
+        <button data-layout="right">right</button>
+        <button data-layout="bottom">bottom</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>notch side (landscape)</label>
+      <div class="seg" id="seg-notch">
+        <button data-notch="left" class="active">left</button>
+        <button data-notch="right">right</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>device preset</label>
+      <select id="preset">
+        <option value="none">none (real env())</option>
+        <option value="15p">iPhone 15 Pro · portrait</option>
+        <option value="15l">iPhone 15 Pro · landscape</option>
+        <option value="16p">iPhone 16 Pro · portrait</option>
+        <option value="16l">iPhone 16 Pro · landscape</option>
+        <option value="16pm">iPhone 16 Pro Max · portrait</option>
+        <option value="se">iPhone SE (no notch)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>force insets (blank = env())</label>
+      <div class="row">
+        <input type="text" inputmode="numeric" data-force="sat" placeholder="top">
+        <input type="text" inputmode="numeric" data-force="sar" placeholder="right">
+        <input type="text" inputmode="numeric" data-force="sab" placeholder="bottom">
+        <input type="text" inputmode="numeric" data-force="sal" placeholder="left">
+      </div>
+    </div>
+    <div class="field">
+      <label class="toggle"><input type="checkbox" id="ov-on" checked> safe-area overlay</label>
+      <label class="toggle"><input type="checkbox" id="pad-guide" checked> content padding guide</label>
+    </div>
+    <div class="readout" id="readout"></div>
+    </div>
+  </aside>
+</div>
+
+<script>
+"use strict";
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+const store = { get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+
+/* theme --------------------------------------------------------------- */
+const darkMQ = matchMedia("(prefers-color-scheme: dark)");
+function applyTheme() {
+  let t = store.get("navtest.theme", "auto");
+  document.documentElement.dataset.theme = (t === "auto" ? darkMQ.matches : t === "dark") ? "dark" : "light";
+}
+darkMQ.addEventListener("change", applyTheme);
+applyTheme();
+
+/* device presets ------------------------------------------------------- */
+const PRESETS = {
+  "15p": { sat: 59, sar: 0, sab: 34, sal: 0 },
+  "15l": { sat: 0, sar: 0, sab: 21, sal: 59 },
+  "16p": { sat: 62, sar: 0, sab: 34, sal: 0 },
+  "16l": { sat: 0, sar: 0, sab: 21, sal: 62 },
+  "16pm": { sat: 62, sar: 0, sab: 34, sal: 0 },
+  "se": { sat: 0, sar: 0, sab: 0, sal: 0 }
+};
+const force = { sat: "", sar: "", sab: "", sal: "" };
+function applyForce() {
+  for (const k of ["sat", "sar", "sab", "sal"]) {
+    const v = force[k];
+    if (v === "") document.documentElement.style.removeProperty("--" + k);
+    else document.documentElement.style.setProperty("--" + k, v + "px");
+  }
+}
+$$("[data-force]").forEach((input) => {
+  const k = input.dataset.force;
+  const saved = store.get("navtest.force." + k, "");
+  if (saved) { input.value = saved; force[k] = saved; }
+  input.addEventListener("input", () => {
+    const raw = input.value.trim();
+    const v = parseInt(raw, 10);
+    if (raw === "" || !isFinite(v)) { force[k] = ""; store.set("navtest.force." + k, ""); }
+    else { force[k] = String(v); store.set("navtest.force." + k, String(v)); }
+    applyForce();
+    update();
+  });
+});
+applyForce();
+
+$("#preset").addEventListener("change", (e) => {
+  const p = PRESETS[e.target.value];
+  if (!p) return;
+  for (const k of ["sat", "sar", "sab", "sal"]) {
+    force[k] = String(p[k]);
+    const input = document.querySelector('[data-force="' + k + '"]');
+    input.value = p[k];
+    store.set("navtest.force." + k, String(p[k]));
+  }
+  applyForce();
+  update();
+});
+
+/* notch side ----------------------------------------------------------- */
+$$("#seg-notch button").forEach((btn) => btn.addEventListener("click", () => {
+  const prev = document.body.dataset.notch;
+  const next = btn.dataset.notch;
+  $$("#seg-notch button").forEach((b) => b.classList.remove("active"));
+  btn.classList.add("active");
+  document.body.dataset.notch = next;
+  /* The notch is a physical feature, so flipping the side moves the simulated
+     inset with it. Otherwise the preset would keep simulating it on the old side. */
+  if (prev !== next) {
+    const l = force.sal, r = force.sar;
+    if (l !== r) {
+      force.sal = r; force.sar = l;
+      const li = document.querySelector('[data-force="sal"]');
+      const ri = document.querySelector('[data-force="sar"]');
+      li.value = force.sal; ri.value = force.sar;
+      store.set("navtest.force.sal", force.sal);
+      store.set("navtest.force.sar", force.sar);
+      applyForce();
+    }
+  }
+  update();
+}));
+
+/* layout switcher ----------------------------------------------------- */
+function effectiveLayout() {
+  const mode = document.body.dataset.layout;
+  if (mode !== "auto") return mode;
+  const landscape = matchMedia("(orientation: landscape)").matches;
+  const wide = matchMedia("(min-width: 600px)").matches;
+  const notch = document.body.dataset.notch;
+  if (wide) return notch === "right" ? "right" : "left";
+  return "bottom";
+}
+function applyLayout() {
+  document.body.dataset.effective = effectiveLayout();
+  // (the effective layout is already shown in the readout lines below)
+  updateOv();
+}
+$$("#seg-layout button").forEach((btn) => btn.addEventListener("click", () => {
+  $$("#seg-layout button").forEach((b) => b.classList.remove("active"));
+  btn.classList.add("active");
+  document.body.dataset.layout = btn.dataset.layout;
+  applyLayout();
+  update();
+}));
+
+/* safe-area overlay ---------------------------------------------------- */
+function updateOv() {
+  const on = $("#ov-on").checked;
+  for (const side of ["top", "right", "bottom", "left"]) {
+    const el = document.querySelector('.ov-band[data-side="' + side + '"]');
+    el.dataset.on = on ? "1" : "0";
+    const v = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--" + (side === "top" ? "sat" : side === "right" ? "sar" : side === "bottom" ? "sab" : "sal")).trim(), 10) || 0;
+    el.style[side === "top" || side === "bottom" ? "height" : "width"] = v + "px";
+    document.getElementById("ov-" + side).textContent = side + " " + v + "px";
+  }
+}
+$("#ov-on").addEventListener("change", updateOv);
+$("#pad-guide").addEventListener("change", (e) => {
+  document.querySelector(".content").classList.toggle("guide", e.target.checked);
+});
+
+/* readout + media queries --------------------------------------------- */
+const mqList = [
+  "(orientation: landscape)", "(orientation: portrait)",
+  "(min-width: 600px)", "(min-width: 768px)",
+  "(pointer: coarse)", "(pointer: fine)", "(hover: hover)", "(any-hover: hover)",
+  "(display-mode: standalone)", "(display-mode: fullscreen)"
+];
+function readout() {
+  const landscape = matchMedia("(orientation: landscape)").matches;
+  const wide = matchMedia("(min-width: 600px)").matches;
+  const vv = window.visualViewport;
+  const insets = { top: getComputedStyle(document.documentElement).getPropertyValue("--sat").trim(), right: getComputedStyle(document.documentElement).getPropertyValue("--sar").trim(), bottom: getComputedStyle(document.documentElement).getPropertyValue("--sab").trim(), left: getComputedStyle(document.documentElement).getPropertyValue("--sal").trim() };
+  const lines = [
+    ["viewport", innerWidth + " × " + innerHeight],
+    ["orientation", landscape ? "landscape" : "portrait"],
+    ["media", (wide ? "wide" : "narrow") + " · " + (matchMedia("(pointer: coarse)").matches ? "coarse" : "fine") + " pointer · " + (matchMedia("(hover: hover)").matches ? "hover" : "no hover")],
+    ["insets t r b l", insets.top + " " + insets.right + " " + insets.bottom + " " + insets.left],
+    ["effective layout", document.body.dataset.effective],
+    ["visualViewport", vv ? vv.width + " × " + vv.height + " @ " + vv.scale.toFixed(2) : "unsupported"],
+    ["scroll", scrollY + " / " + (document.documentElement.scrollHeight - document.documentElement.clientHeight)]
+  ];
+  document.getElementById("readout").innerHTML = lines
+    .map(([k, v]) => '<div><b>' + k + ':</b> ' + v + '</div>').join("");
+}
+function update() { applyLayout(); updateOv(); readout(); }
+window.addEventListener("resize", () => { applyLayout(); updateOv(); readout(); });
+if (window.visualViewport) { visualViewport.addEventListener("resize", readout); visualViewport.addEventListener("scroll", readout); }
+matchMedia("(orientation: landscape)").addEventListener("change", () => { applyLayout(); update(); });
+
+/* populate the list --------------------------------------------------- */
+const list = document.getElementById("list");
+const rows = [
+  ["Dashboard", "Overview of today's activity", "today"],
+  ["Inbox", "3 unread messages", "mail"],
+  ["Projects", "12 active", "folder"],
+  ["Calendar", "Next: 14:00 stand-up", "calendar"],
+  ["Settings", "Account, notifications, privacy", "gear"],
+  ["Help", "FAQ and contact", "help"]
+];
+rows.forEach(([title, sub, tag]) => {
+  const el = document.createElement("div");
+  el.className = "item";
+  el.innerHTML = '<div class="ic">' + tag.slice(0, 2).toUpperCase() + '</div><div class="meta"><div class="title">' + title + '</div><div class="sub">' + sub + '</div></div><span class="badge">' + tag + '</span>';
+  list.appendChild(el);
+});
+for (let i = 0; i < 18; i++) {
+  const el = document.createElement("div");
+  el.className = "item";
+  el.innerHTML = '<div class="ic">' + (i + 1) + '</div><div class="meta"><div class="title">Item ' + (i + 1) + '</div><div class="sub">scroll to see the nav stay put</div></div><span class="badge">row</span>';
+  list.appendChild(el);
+}
+
+/* keyboard shortcuts --------------------------------------------------- */
+addEventListener("keydown", (e) => {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
+  if (e.key === "c") { setSheet(!sheet.classList.contains("open")); return; }
+  const m = { l: "left", r: "right", b: "bottom", a: "auto" }[e.key.toLowerCase()];
+  if (m) { const btn = document.querySelector('#seg-layout button[data-layout="' + m + '"]'); if (btn) btn.click(); }
+});
+
+/* controls sheet ------------------------------------------------------- */
+const sheet = $("#sheet");
+const fab = $("#fab");
+function setSheet(open) {
+  sheet.classList.toggle("open", open);
+  fab.setAttribute("aria-expanded", open ? "true" : "false");
+  if (open) sheet.querySelector(".panel-body").scrollTop = 0;
+}
+fab.addEventListener("click", () => setSheet(!sheet.classList.contains("open")));
+$("#backdrop").addEventListener("click", () => setSheet(false));
+$("#panel-close").addEventListener("click", () => setSheet(false));
+addEventListener("keydown", (e) => { if (e.key === "Escape") setSheet(false); });
+
+/* boot ----------------------------------------------------------------- */
+document.body.dataset.layout = "auto";
+document.body.dataset.notch = "left";
+applyLayout();
+updateOv();
+readout();
+</script>
+</body>
+</html>
