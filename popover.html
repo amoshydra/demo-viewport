@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<title>Popover placement</title>
+<meta name="viewport" id="viewport-meta" data-wvdbg content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Popover API placement on a foldable: a popover left to the UA's default centring against one anchored with CSS anchor positioning.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#0b0b0d" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0b0d'/%3E%3Crect x='6' y='5' width='20' height='22' rx='2' fill='none' stroke='%237aa2f7' stroke-width='2'/%3E%3Crect x='6' y='9' width='20' height='2' fill='%237aa2f7' opacity='.55'/%3E%3Crect x='6' y='21' width='20' height='2' fill='%237aa2f7' opacity='.55'/%3E%3C/svg%3E">
+<script>
+/* Theme before paint, same convention as the other pages. */
+(function () {
+  try { var t = localStorage.getItem("wvdbg.theme") || "auto"; } catch (e) { t = "auto"; }
+  var dark = t === "dark" || (t === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
+  document.documentElement.dataset.theme = dark ? "dark" : "light";
+})();
+</script>
+<style>
+:root {
+  --bg: #f6f6f7; --surface: #fff; --surface-2: #f0f0f2; --line: #e2e2e6;
+  --fg: #17171a; --muted: #6a6a75; --accent: #2563eb; --good: #15803d;
+  --warn: #a16207; --mono: ui-monospace, Menlo, Consolas, monospace;
+  --sat: env(safe-area-inset-top, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+}
+html[data-theme="dark"] {
+  --bg: #0b0b0d; --surface: #141417; --surface-2: #1d1d22; --line: #2a2a31;
+  --fg: #f3f3f5; --muted: #9a9aa6; --accent: #7aa2f7; --good: #4ade80;
+  --warn: #fbbf24;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--fg);
+  font: 1rem/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  padding: 0 0 var(--sab);
+}
+
+header.top {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; flex-wrap: wrap; align-items: center; gap: .5rem;
+  padding: calc(.5rem + var(--sat)) calc(.75rem + var(--sar)) .5rem calc(.75rem + var(--sal));
+  background: var(--surface); border-bottom: 1px solid var(--line);
+}
+header.top .home {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2rem; height: 2rem; border-radius: .5rem; flex: 0 0 auto;
+  color: var(--fg); text-decoration: none; background: var(--surface-2);
+  border: 1px solid var(--line); font-size: 1.05rem;
+}
+header.top .brand { font-weight: 600; font-size: .875rem; }
+header.top .brand span { color: var(--muted); font-weight: 400; }
+header.top .sp { flex: 1 1 auto; }
+
+main { padding: .875rem calc(.75rem + var(--sar)) 1.5rem calc(.75rem + var(--sal)); max-width: 56.25rem; margin: 0 auto; display: grid; gap: .75rem; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: .75rem; }
+.card > .body { padding: .875rem 1rem 1rem; }
+h1 { margin: 0 0 .375rem; font-size: 1.125rem; }
+h2 { margin: 0 0 .5rem; font-size: .875rem; }
+p { margin: 0 0 .75rem; color: var(--muted); font-size: .8125rem; }
+p:last-child { margin-bottom: 0; }
+code { font-family: var(--mono); font-size: .78rem; }
+
+button, select {
+  font: inherit; color: var(--fg); background: var(--surface-2);
+  border: 1px solid var(--line); border-radius: .5rem; padding: .4375rem .75rem;
+}
+button { cursor: pointer; font-size: .875rem; }
+button:hover, select:hover { border-color: var(--accent); }
+select { font-size: .8125rem; }
+.row { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+#anchor { anchor-name: --demo-anchor; }
+
+/* Popover styling only. No position and no inset here, so the centred one keeps
+   the UA's own rule — fixed, inset 0, margin auto — and centres in whatever the
+   engine currently treats as the viewport. */
+[popover] {
+  padding: .875rem 1rem; border-radius: .75rem;
+  background: var(--surface); color: var(--fg);
+  border: 2px solid var(--line);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .28);
+  max-width: min(20rem, 82vw);
+}
+[popover] h3 { margin: 0 0 .375rem; font-size: .875rem; }
+[popover] p { margin: 0 0 .625rem; font-size: .78rem; }
+#p-centred { border-color: var(--accent); }
+#p-anchored {
+  position-anchor: --demo-anchor;
+  top: anchor(bottom);
+  left: anchor(left);
+  margin: .5rem 0 0;
+  border-color: var(--warn);
+}
+
+.kv { display: flex; flex-direction: column; }
+.kv-row { display: flex; align-items: baseline; gap: .875rem; padding: .3125rem 0; border-bottom: 1px solid var(--line); }
+.kv-row:last-child { border-bottom: 0; }
+.kv-row .k { color: var(--muted); font-size: .78125rem; }
+.kv-row .v { margin-left: auto; font: .8125rem/1.4 var(--mono); font-variant-numeric: tabular-nums; text-align: right; overflow-wrap: anywhere; }
+
+#log { list-style: none; margin: 0; padding: 0; max-height: 15rem; overflow: auto; font: .75rem/1.5 var(--mono); }
+#log li { display: grid; grid-template-columns: 3.5rem 1fr; gap: .5rem; padding: .125rem 0; border-bottom: 1px solid var(--line); }
+#log li b { color: var(--muted); font-weight: 400; }
+#log li span { overflow-wrap: anywhere; }
+.note { color: var(--muted); font-size: .75rem; margin: .625rem 0 0; }
+
+@media (pointer: coarse) {
+  button, select { min-height: 2.5rem; }
+  .card > .body { padding: .875rem .875rem 1rem; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <a class="home" href="./" aria-label="back to prototypes" title="back to prototypes">⌂</a>
+  <a class="brand" href="./">popover placement <span>foldable</span></a>
+  <span class="sp"></span>
+  <select id="theme" aria-label="theme">
+    <option value="auto">auto</option>
+    <option value="dark">dark</option>
+    <option value="light">light</option>
+  </select>
+</header>
+
+<main>
+
+  <section class="card">
+    <div class="body">
+      <h1>Popover API on a foldable</h1>
+      <p>Two popovers over one anchor. The first is left entirely to the user agent, so it
+        gets the default <code>position: fixed; inset: 0; margin: auto</code> and centres in
+        whatever the engine treats as the viewport. The second is anchored with CSS anchor
+        positioning, so it has to follow the button instead.</p>
+      <p>Fold the device with a popover open and watch the readout and the trace. The trace
+        samples every animation frame, so a reposition during the fold animation is recorded
+        rather than missed between two <code>resize</code> events.</p>
+      <p class="note">Both are auto popovers, so they are mutually exclusive: opening one
+        closes the other, by spec. The trace shows the close as it happens.</p>
+      <div class="row" style="margin-top:.75rem">
+        <button popovertarget="p-centred">Open centred popover</button>
+        <button id="anchor" popovertarget="p-anchored">Open anchored popover</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="p-centred" popover>
+    <h3>Centred, UA default</h3>
+    <p>No author positioning at all. It centres in the viewport the engine reports.</p>
+    <button popovertarget="p-centred" popovertargetaction="hide">Close</button>
+  </div>
+
+  <div id="p-anchored" popover>
+    <h3>Anchored, CSS anchor positioning</h3>
+    <p><code>position-anchor</code> plus <code>top: anchor(bottom)</code>. It follows the
+      button, and the engine decides when to flip or shift it.</p>
+    <button popovertarget="p-anchored" popovertargetaction="hide">Close</button>
+  </div>
+
+  <section class="card">
+    <div class="body">
+      <h2>Readout</h2>
+      <div class="kv" id="readout"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="body">
+      <h2>Trace <span id="log-count" style="color:var(--muted);font-weight:400"></span></h2>
+      <ul id="log"></ul>
+      <p class="note">One line per change, in the order they happened. Each line is
+        <code>viewport | centred rect | anchored rect</code>, in CSS px.</p>
+    </div>
+  </section>
+
+</main>
+
+<div id="probes" aria-hidden="true" style="position:fixed;top:0;left:0;width:0;height:0;visibility:hidden"></div>
+
+<script>
+"use strict";
+const $ = (s) => document.querySelector(s);
+const r2 = (v) => (typeof v === "number" && isFinite(v) ? Math.round(v * 100) / 100 : null);
+
+/* Theme control, sharing wvdbg.theme with the other pages. */
+const themeSel = $("#theme");
+try { themeSel.value = localStorage.getItem("wvdbg.theme") || "auto"; } catch (e) {}
+themeSel.addEventListener("change", () => {
+  const v = themeSel.value;
+  try { localStorage.setItem("wvdbg.theme", v); } catch (e) {}
+  const dark = v === "dark" || (v === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
+  document.documentElement.dataset.theme = dark ? "dark" : "light";
+});
+
+/* env(viewport-segment-*) is the fold-aware API and has no JS surface, so resolve
+   it through a probe element, the same way the viewport page reads env(). */
+const SIDES = ["width", "height", "top", "left", "right", "bottom"];
+const probes = {};
+for (const side of SIDES) {
+  const el = document.createElement("div");
+  const horiz = side === "width" || side === "left" || side === "right";
+  el.style.cssText = "position:fixed;top:0;left:0;width:0;height:0";
+  if (horiz) el.style.width = `env(viewport-segment-${side} 0 0, 0px)`;
+  else el.style.height = `env(viewport-segment-${side} 0 0, 0px)`;
+  $("#probes").appendChild(el);
+  probes[side] = { el, prop: horiz ? "width" : "height" };
+}
+const readSeg = (side) => parseFloat(getComputedStyle(probes[side].el)[probes[side].prop]) || 0;
+const segReported = () => SIDES.some((s) => readSeg(s) > 0);
+
+function rectOf(el) {
+  if (el.id !== "anchor" && !el.matches(":popover-open")) return "closed";
+  const b = el.getBoundingClientRect();
+  return `${Math.round(b.left)},${Math.round(b.top)} ${Math.round(b.width)}×${Math.round(b.height)}`;
+}
+
+const rows = [
+  ["viewport", () => innerWidth + " × " + innerHeight],
+  ["visual viewport", () => window.visualViewport ? r2(window.visualViewport.width) + " × " + r2(window.visualViewport.height) : "unsupported"],
+  ["screen", () => screen.width + " × " + screen.height],
+  ["dpr", () => window.devicePixelRatio],
+  ["viewport-fit", () => /viewport-fit=cover/.test($("#viewport-meta").content) ? "cover" : "auto"],
+  ["viewport-segment", () => segReported()
+    ? `w ${readSeg("width")} h ${readSeg("height")} t ${readSeg("top")} l ${readSeg("left")}`
+    : "not reported"],
+  ["centred popover", () => rectOf($("#p-centred"))],
+  ["anchored popover", () => rectOf($("#p-anchored"))],
+  ["anchor button", () => rectOf($("#anchor"))],
+];
+const cells = rows.map(([label]) => {
+  const row = document.createElement("div");
+  row.className = "kv-row";
+  const k = document.createElement("span"); k.className = "k"; k.textContent = label;
+  const v = document.createElement("span"); v.className = "v";
+  row.append(k, v); $("#readout").appendChild(row);
+  return v;
+});
+const updateReadout = () => rows.forEach(([, fn], i) => { cells[i].textContent = fn(); });
+
+/* Per-frame sampling, so a move during the fold animation is still captured. */
+const log = $("#log");
+let last = null, changes = 0;
+const signature = () => `${innerWidth}x${innerHeight}|${rectOf($("#p-centred"))}|${rectOf($("#p-anchored"))}`;
+function sample() {
+  const sig = signature();
+  if (sig !== last) {
+    last = sig;
+    changes++;
+    const li = document.createElement("li");
+    const t = document.createElement("b");
+    t.textContent = (performance.now() / 1000).toFixed(2) + "s";
+    const v = document.createElement("span");
+    v.textContent = sig;
+    li.append(t, v);
+    log.insertBefore(li, log.firstChild);
+    while (log.children.length > 80) log.removeChild(log.lastChild);
+    $("#log-count").textContent = "· " + changes + " changes";
+    updateReadout();
+  }
+  requestAnimationFrame(sample);
+}
+requestAnimationFrame(sample);
+addEventListener("resize", updateReadout);
+if (window.visualViewport) {
+  visualViewport.addEventListener("resize", updateReadout);
+  visualViewport.addEventListener("scroll", updateReadout);
+}
+for (const id of ["p-centred", "p-anchored"]) {
+  $(`#${id}`).addEventListener("toggle", () => { last = null; updateReadout(); });
+}
+updateReadout();
+</script>
+</body>
+</html>

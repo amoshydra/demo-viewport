@@ -7,6 +7,7 @@ that lists them and reports the device you are on; each prototype links back to 
 index.html                  # hub: lists the prototypes, shows your own device
 viewport.html               # viewport / safe-area diagnostics
 nav.html                    # navigation placement prototype
+popover.html                # Popover API placement on a foldable
 3p-cookie-test.html         # passive cross-site target for the cookie test, not linked
 ```
 
@@ -128,6 +129,28 @@ from the section above: a media query breakpoint cannot use `rem` if you want it
 track the user's font size — `rem` in a query resolves against the *initial* font size.
 These breakpoints are deliberately in `rem` for the opposite reason, so they follow
 the browser default rather than the preference.
+
+## popover.html: popover placement
+
+Two popovers over one anchor, to see how the engine places each when the viewport
+changes underneath them.
+
+- The **centred** one gets no author positioning at all, so it keeps the UA rule —
+  `position: fixed; inset: 0; margin: auto` — and centres in whatever the engine
+  currently treats as the viewport. Setting `top` or `left` on it would defeat the
+  test, which is why the shared `[popover]` rule on that page styles appearance only.
+- The **anchored** one uses `position-anchor` plus `top: anchor(bottom)`, so it has to
+  follow the button, and the engine decides when to flip or shift it.
+
+Both are auto popovers, so they are mutually exclusive by spec: opening one closes the
+other.
+
+The readout reports `innerWidth/Height`, `visualViewport`, `screen`, `dpr` and
+`env(viewport-segment-*)` resolved through a probe element, since the segment
+variables have no JS surface. The trace samples every animation frame and records one
+line per change, so a reposition during a fold animation is captured rather than
+missed between two `resize` events. Each line is
+`viewport | centred rect | anchored rect`, in CSS px.
 
 ## Safe area
 
