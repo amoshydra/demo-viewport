@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<title>WebView prototypes</title>
+<meta name="viewport" id="viewport-meta" data-wvdbg content="width=device-width, initial-scale=1">
+<meta name="description" content="Prototype pages for testing WebView layout: safe areas, viewport units and navigation placement.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#0b0b0d" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0b0d'/%3E%3Crect x='6' y='5' width='20' height='22' rx='2' fill='none' stroke='%237aa2f7' stroke-width='2'/%3E%3Crect x='6' y='9' width='20' height='2' fill='%237aa2f7' opacity='.55'/%3E%3Crect x='6' y='21' width='20' height='2' fill='%237aa2f7' opacity='.55'/%3E%3C/svg%3E">
+<script>
+/* Theme before paint, same convention as the other pages. */
+(function () {
+  try { var t = localStorage.getItem("wvdbg.theme") || "auto"; } catch (e) { t = "auto"; }
+  var dark = t === "dark" || (t === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
+  document.documentElement.dataset.theme = dark ? "dark" : "light";
+})();
+</script>
+<style>
+:root {
+  --bg: #f6f6f7; --surface: #fff; --surface-2: #f0f0f2; --line: #e2e2e6;
+  --fg: #17171a; --muted: #6a6a75; --accent: #2563eb; --good: #15803d;
+  --warn: #a16207; --mono: ui-monospace, Menlo, Consolas, monospace;
+  --sat: env(safe-area-inset-top, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+}
+html[data-theme="dark"] {
+  --bg: #0b0b0d; --surface: #141417; --surface-2: #1d1d22; --line: #2a2a31;
+  --fg: #f3f3f5; --muted: #9a9aa6; --accent: #7aa2f7; --good: #4ade80;
+  --warn: #fbbf24;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--fg);
+  font: 1rem/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  padding: 0 var(--sar) var(--sab) var(--sal);
+  -webkit-text-size-adjust: auto;
+  min-height: 100dvh;
+}
+.wrap { max-width: 44rem; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+
+header { padding-top: max(0.5rem, var(--sat)); }
+h1 { font-size: 1.5rem; margin: 0 0 0.375rem; letter-spacing: -0.01em; }
+.lede { color: var(--muted); font-size: 0.9375rem; margin: 0; max-width: 34rem; }
+
+.device {
+  margin-top: 1.25rem; padding: 0.75rem 0.875rem;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 0.75rem;
+  font: 0.8125rem/1.7 var(--mono); color: var(--muted);
+}
+.device b { color: var(--fg); font-weight: 500; }
+.device .hint { color: var(--muted); font-family: system-ui, sans-serif; font-size: 0.75rem; }
+.device.is-zero { border-color: color-mix(in srgb, var(--warn) 45%, var(--line)); }
+
+h2 { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); margin: 1.75rem 0 0.625rem; font-weight: 600; }
+
+.cards { display: grid; gap: 0.625rem; }
+a.card {
+  display: block; text-decoration: none; color: inherit;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 0.75rem;
+  padding: 0.875rem 1rem;
+}
+a.card:hover { border-color: var(--accent); }
+a.card:active { transform: translateY(1px); }
+a.card .row { display: flex; align-items: baseline; gap: 0.5rem; }
+a.card .name { font-size: 1rem; font-weight: 600; }
+a.card .path { font: 0.75rem var(--mono); color: var(--muted); margin-left: auto; white-space: nowrap; }
+a.card .desc { color: var(--muted); font-size: 0.875rem; margin-top: 0.25rem; }
+a.card .tags { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: 0.625rem; }
+.tag { font: 0.6875rem/1 var(--mono); color: var(--muted); background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; padding: 0.1875rem 0.4375rem; }
+a.card.primary { border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
+
+footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.8125rem; }
+footer code { font-family: var(--mono); font-size: 0.75rem; }
+.actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.25rem; }
+.actions a, .actions button {
+  font: 0.875rem/1 system-ui, sans-serif; text-decoration: none; color: var(--fg);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 0.5rem; padding: 0.5rem 0.75rem;
+}
+.actions a:hover { border-color: var(--accent); }
+@media (pointer: coarse) { .actions a, .actions button { min-height: 2.5rem; display: inline-flex; align-items: center; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>WebView prototypes</h1>
+    <p class="lede">Small self-contained pages for testing how a WebView lays out real
+      things: safe areas, viewport units, and where the navigation goes.</p>
+  </header>
+
+  <div class="device" id="device">
+    <div>viewport <b id="d-vp">—</b></div>
+    <div>safe area t r b l <b id="d-insets">—</b></div>
+    <div class="hint" id="d-hint"></div>
+  </div>
+
+  <h2>prototypes</h2>
+  <div class="cards">
+
+    <a class="card primary" href="viewport.html">
+      <div class="row">
+        <span class="name">Viewport &amp; safe area</span>
+        <span class="path">viewport.html</span>
+      </div>
+      <div class="desc">Read the numbers straight off the device: all eight viewport units
+        measured from real elements, safe-area insets, pixel density, keyboard behaviour,
+        pointer and hover, and 36 live media queries.</div>
+      <div class="tags">
+        <span class="tag">dvh svh lvh</span>
+        <span class="tag">safe-area-inset</span>
+        <span class="tag">keyboard</span>
+        <span class="tag">devicePixelRatio</span>
+      </div>
+    </a>
+
+    <a class="card" href="nav.html">
+      <div class="row">
+        <span class="name">Navigation placement</span>
+        <span class="path">nav.html</span>
+      </div>
+      <div class="desc">Where should the nav go? Switch between a left sidebar, a right
+        sidebar and a bottom bar, and check each one clears the notch, the status bar
+        and the home indicator in both orientations.</div>
+      <div class="tags">
+        <span class="tag">sidebar</span>
+        <span class="tag">bottom bar</span>
+        <span class="tag">orientation</span>
+        <span class="tag">device presets</span>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="actions">
+    <button id="theme" type="button">switch theme</button>
+    <a href="viewport.html?fit=cover">open viewport with <code>?fit=cover</code></a>
+  </div>
+
+  <footer>
+    <p style="margin:0 0 0.5rem">Load a page with <code>?fit=cover</code> to see the raw
+      insets; without it the WebView insets the page itself and every value reads
+      <code>0px</code>, which is the answer rather than a bug.</p>
+    <p style="margin:0">Each prototype links back here from its own header. GitHub Pages
+      caches HTML for about ten minutes, so append <code>?v=2</code> if a change has not
+      appeared yet.</p>
+  </footer>
+
+</div>
+
+<script>
+"use strict";
+const $ = (s) => document.querySelector(s);
+const store = { get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+
+/* theme ---------------------------------------------------------------- */
+const darkMQ = matchMedia("(prefers-color-scheme: dark)");
+function applyTheme() {
+  const t = store.get("wvdbg.theme", "auto");
+  document.documentElement.dataset.theme = (t === "auto" ? darkMQ.matches : t === "dark") ? "dark" : "light";
+}
+applyTheme();
+$("#theme").addEventListener("click", () => {
+  const cur = store.get("wvdbg.theme", "auto");
+  const next = cur === "auto" ? "dark" : cur === "dark" ? "light" : "auto";
+  store.set("wvdbg.theme", next);
+  applyTheme();
+});
+
+/* device readout: so you know what you are on before picking a test ---- */
+function readout() {
+  const vv = window.visualViewport;
+  const cs = getComputedStyle(document.documentElement);
+  const get = (k) => cs.getPropertyValue(k).trim();
+  const insets = [get("--sat"), get("--sar"), get("--sab"), get("--sal")];
+  const anyInset = insets.some((v) => parseFloat(v) > 0);
+  $("#d-vp").textContent = innerWidth + " × " + innerHeight + "  @" + (window.devicePixelRatio || 1) + "x"
+    + "  ·  " + (matchMedia("(orientation: landscape)").matches ? "landscape" : "portrait");
+  $("#d-insets").textContent = insets.join("  ");
+  $("#device").classList.toggle("is-zero", !anyInset);
+  const cover = /viewport-fit=cover/i.test($("#viewport-meta").content);
+  $("#d-hint").textContent = anyInset
+    ? "Insets are live, so both prototypes will pad their own chrome correctly."
+    : cover
+      ? "viewport-fit=cover is set but the insets are 0px. The page is edge to edge, so its own header may sit under the status bar. Use the force-inset fields in the safe area section to compensate."
+      : "No insets reported. Add ?fit=cover to a prototype to see the raw values, or the WebView is insetting the page itself.";
+}
+readout();
+addEventListener("resize", readout);
+if (window.visualViewport) visualViewport.addEventListener("resize", readout);
+matchMedia("(orientation: landscape)").addEventListener("change", readout);
+</script>
+</body>
+</html>

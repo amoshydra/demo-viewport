@@ -2,7 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
-<title>Nav Placement Test</title>
+<title>Navigation placement · WebView prototypes</title>
 <meta name="viewport" id="viewport-meta" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#0b0b0d" media="(prefers-color-scheme: dark)">
@@ -153,21 +153,32 @@ body[data-layout="auto"][data-effective="bottom"] .nav-bottom { display: flex; }
 
 /* floating control panel ------------------------------------------------- */
 /* controls: a FAB that opens a sheet, so the stage is unobstructed by default.
-   The FAB is offset by the nav's own footprint, so it never covers the nav. */
-.fab {
+   The corner cluster is offset by the nav's own footprint, so it never covers the
+   nav it is helping you test. */
+.corner {
   position: fixed; z-index: 30;
   right: calc(0.75rem + var(--sar)); bottom: calc(0.75rem + var(--sab));
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+}
+body[data-layout="left"] .corner,
+body[data-layout="auto"][data-effective="left"] .corner { left: calc(var(--nav-w) + 0.75rem); right: auto; }
+body[data-layout="right"] .corner,
+body[data-layout="auto"][data-effective="right"] .corner { right: calc(var(--nav-w) + 0.75rem); }
+body[data-layout="bottom"] .corner,
+body[data-layout="auto"][data-effective="bottom"] .corner { bottom: calc(var(--nav-h) + 0.75rem); }
+
+.fab {
   width: 2.75rem; height: 2.75rem; padding: 0; border-radius: 999px;
   display: grid; place-items: center; font-size: 1.25rem; line-height: 1;
-  background: var(--surface); color: var(--fg);
+  background: var(--surface); color: var(--fg); text-decoration: none;
   border: 1px solid var(--line); box-shadow: 0 0.25rem 1rem rgba(0,0,0,.22);
 }
-body[data-layout="left"] .fab,
-body[data-layout="auto"][data-effective="left"] .fab { left: calc(var(--nav-w) + 0.75rem); right: auto; }
-body[data-layout="right"] .fab,
-body[data-layout="auto"][data-effective="right"] .fab { right: calc(var(--nav-w) + 0.75rem); }
-body[data-layout="bottom"] .fab,
-body[data-layout="auto"][data-effective="bottom"] .fab { bottom: calc(var(--nav-h) + 0.75rem); }
+.fab:hover { border-color: var(--accent); color: var(--accent); }
+.fab.quiet {
+  width: 2.25rem; height: 2.25rem; font-size: 0.9375rem; color: var(--muted);
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,.16);
+}
 
 .sheet { position: fixed; inset: 0; z-index: 40; display: none; }
 .sheet.open { display: block; }
@@ -291,7 +302,10 @@ body[data-layout="auto"][data-effective="bottom"] .fab { bottom: calc(var(--nav-
 </div>
 
 <!-- controls: FAB opens a sheet so the stage stays clear -------------------- -->
-<button class="fab" id="fab" type="button" aria-label="open controls" aria-expanded="false">≡</button>
+<div class="corner">
+  <a class="fab quiet" href="./" aria-label="back to prototypes" title="back to prototypes">⌂</a>
+  <button class="fab" id="fab" type="button" aria-label="open controls" aria-expanded="false">≡</button>
+</div>
 
 <div class="sheet" id="sheet">
   <div class="backdrop" id="backdrop"></div>
@@ -356,7 +370,7 @@ const store = { get(k, d) { try { const v = localStorage.getItem(k); return v ==
 /* theme --------------------------------------------------------------- */
 const darkMQ = matchMedia("(prefers-color-scheme: dark)");
 function applyTheme() {
-  let t = store.get("navtest.theme", "auto");
+  let t = store.get("wvdbg.theme", "auto");
   document.documentElement.dataset.theme = (t === "auto" ? darkMQ.matches : t === "dark") ? "dark" : "light";
 }
 darkMQ.addEventListener("change", applyTheme);
@@ -381,13 +395,13 @@ function applyForce() {
 }
 $$("[data-force]").forEach((input) => {
   const k = input.dataset.force;
-  const saved = store.get("navtest.force." + k, "");
+  const saved = store.get("wvdbg.force." + k, "");
   if (saved) { input.value = saved; force[k] = saved; }
   input.addEventListener("input", () => {
     const raw = input.value.trim();
     const v = parseInt(raw, 10);
-    if (raw === "" || !isFinite(v)) { force[k] = ""; store.set("navtest.force." + k, ""); }
-    else { force[k] = String(v); store.set("navtest.force." + k, String(v)); }
+    if (raw === "" || !isFinite(v)) { force[k] = ""; store.set("wvdbg.force." + k, ""); }
+    else { force[k] = String(v); store.set("wvdbg.force." + k, String(v)); }
     applyForce();
     update();
   });
@@ -401,7 +415,7 @@ $("#preset").addEventListener("change", (e) => {
     force[k] = String(p[k]);
     const input = document.querySelector('[data-force="' + k + '"]');
     input.value = p[k];
-    store.set("navtest.force." + k, String(p[k]));
+    store.set("wvdbg.force." + k, String(p[k]));
   }
   applyForce();
   update();
@@ -423,8 +437,8 @@ $$("#seg-notch button").forEach((btn) => btn.addEventListener("click", () => {
       const li = document.querySelector('[data-force="sal"]');
       const ri = document.querySelector('[data-force="sar"]');
       li.value = force.sal; ri.value = force.sar;
-      store.set("navtest.force.sal", force.sal);
-      store.set("navtest.force.sar", force.sar);
+      store.set("wvdbg.force.sal", force.sal);
+      store.set("wvdbg.force.sar", force.sar);
       applyForce();
     }
   }

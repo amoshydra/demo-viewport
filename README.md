@@ -1,13 +1,17 @@
 # demo-viewport
 
-A single-file debug page for inspecting a WebView from the inside. Open it in the
-WebView you want to test, then read the numbers off the screen.
+Prototype pages for testing how a WebView lays out real things. The root is a hub
+that lists them and reports the device you are on; each prototype links back to it.
 
 ```
-index.html                  # viewport / safe-area diagnostics
-nav-test.html               # navigation placement prototype
-3p-cookie-test.html         # passive cross-site target for the cookie test
+index.html                  # hub: lists the prototypes, shows your own device
+viewport.html               # viewport / safe-area diagnostics
+nav.html                    # navigation placement prototype
+3p-cookie-test.html         # passive cross-site target for the cookie test, not linked
 ```
+
+Each prototype links back to the hub from its own header — `⌂` in the top bar on
+`viewport.html`, and in the corner cluster on `nav.html`.
 
 No build step, no dependencies, no network calls. Enable GitHub Pages for this
 repo (Settings → Pages → deploy from the branch root) and load it inside the WebView
@@ -15,6 +19,38 @@ under test.
 
 Neither filename starts with `_`: GitHub's branch deploy runs the site through
 Jekyll, which silently drops any file whose name begins with an underscore.
+
+## The hub
+
+`index.html` is a hub rather than a prototype: it lists the pages and reports the device
+you are looking at them on (viewport, pixel ratio, orientation, and the four insets),
+which is worth knowing before you pick a test. It also flags the two situations that
+waste the most time:
+
+- **`viewport-fit=cover` set but insets reporting `0px`** — the page is edge to edge, so
+  your own header may sit under the status bar. The hub says so and points at the
+  force-inset fields on `viewport.html`.
+- **No insets and no `cover`** — the WebView is insetting the page itself, so `0px` is
+  the correct answer rather than a bug.
+
+The hub carries the theme choice in `localStorage` under the same key as the other
+pages, so switching theme once applies everywhere.
+
+### Shared state
+
+All three pages read the same `localStorage` keys, so what you set once applies
+everywhere:
+
+| Key | Set from | Effect |
+| --- | --- | --- |
+| `wvdbg.theme` | hub, `viewport.html` | `auto` / `dark` / `light` |
+| `wvdbg.tsa` | `viewport.html` | `auto` or `100%` text-size-adjust |
+| `wvdbg.force.sat` … `sal` | `viewport.html`, `nav.html` presets | Simulated device insets in px |
+
+The force-inset keys are the useful one: pick a device preset on `nav.html` and then
+open `viewport.html`, and it pads its own chrome with the same simulated insets. That
+means one device choice drives every prototype instead of re-entering four numbers on
+each page. Blank a field on `viewport.html` to go back to `env()`.
 
 ## What it reports
 
@@ -38,7 +74,7 @@ Everything below the first two blocks is collapsed by default, so the page opens
 as a single screenful. Readouts update live while the page scrolls, so you can watch
 the numbers change when the keyboard opens or a system bar animates.
 
-## nav-test.html: navigation placement
+## nav.html: navigation placement
 
 A separate prototype for one question: where should the navigation go, and does it
 clear the notch, the status bar and the home indicator in every orientation?
@@ -245,7 +281,7 @@ Switching any of these reloads the page, so the settings are just query params:
 | `scale` | number | `initial-scale` |
 
 ```
-index.html?fit=cover&iw=resizes-content
+viewport.html?fit=cover&iw=resizes-content
 ```
 
 ### How the viewport meta is applied
@@ -301,4 +337,4 @@ Two things that bite people here:
   uses. Neither file in this repo does.
 - GitHub Pages caches HTML for about ten minutes, so a freshly pushed change may not
   show up immediately. Append a cache-buster, which the page ignores and preserves
-  when you change the viewport meta: `index.html?fit=cover&v=2`.
+  when you change the viewport meta: `viewport.html?fit=cover&v=2`.
